@@ -1,0 +1,109 @@
+package com.dee.xql.proj;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.web.client.RestTemplate;
+
+import com.alibaba.fastjson.JSON;
+import com.dee.xql.api.model.Res;
+import com.dee.xql.api.model.SAPGoods;
+import com.dee.xql.api.utils.SVNHelper;
+import com.dee.xql.proj.config.CommonsConfig;
+import com.dee.xql.proj.dao.LampsMapper;
+import com.dee.xql.proj.enums.ProjectFileType;
+import com.dee.xql.proj.service.DJService;
+import com.dee.xql.proj.service.GGService;
+import com.dee.xql.proj.service.LampsService;
+import com.dee.xql.proj.service.MppService;
+
+import net.sf.mpxj.MPXJException;
+
+@SpringBootTest(classes = SpringbootApplication.class)
+@RunWith(SpringJUnit4ClassRunner.class)
+@WebAppConfiguration
+public class Tester {
+
+	@Autowired
+	private MppService mppService;
+	@Autowired
+	private CommonsConfig commonsConfig;
+	@Autowired
+	private DJService djService;
+	@Autowired
+	private GGService ggService;
+	@Autowired
+	private LampsService lampsService;
+
+	@Test
+	public void testRest() {
+
+	}
+
+	@Test
+	public void testExport() {
+		SVNHelper.update("D:/xql-work/项目计划/", commonsConfig.getSvn_username(), commonsConfig.getSvn_password());
+//		mppService.exportMpp();
+	}
+
+	@Test
+	public void readMpp() throws MPXJException {
+		String fileName = "D:\\xql-work\\项目计划\\2018081189-甘肃省武威市凉州区-迎宾路万达广场梦金园\\2018081189B-甘肃省武威市凉州区-迎宾路万达广场梦金园-设计.mpp";
+		System.out.println(JSON.toJSONString(mppService.read(fileName, ProjectFileType.MPP_TASK, 1L)));
+	}
+
+	@Test
+	public void testFileName() {
+		String fileName = "2018051233A-北京市丰台区-发给摄点击返回后-销售.mpp";
+		String fileDir = fileName.substring(fileName.indexOf("-"));
+		fileDir = fileDir.substring(0, fileDir.lastIndexOf("-"));
+		System.out.println(fileDir);
+	}
+
+	@Test
+	public void testReadDJMpp() {
+		String fileName = "D:\\xql-work\\道具\\201808-道具模板.mpp";
+		djService.saveData(fileName, 0L);
+//		System.out.println(JSON.toJSONString(djService.readDJMpp(fileName, 0L)));
+	}
+
+	@Test
+	public void testReadGGMpp() {
+		String fileName = "D:\\xql-work\\广告\\201808-广告测试.mpp";
+		ggService.saveData(fileName, 0L);
+//		System.out.println(JSON.toJSONString(djService.readDJMpp(fileName, 0L)));
+	}
+
+	@Test
+	public void testReadLampsMpp() {
+		String fileName = "D:\\xql-work\\灯具\\201808-灯具测试.mpp";
+		lampsService.addLampsData(fileName, 111L);
+//		System.out.println(JSON.toJSONString(djService.readDJMpp(fileName, 0L)));
+	}
+
+	@Autowired
+	private LampsMapper lampsMapper;
+	@Autowired
+	private RestTemplate restTemplate;
+	@Test
+	public void test() {
+		SAPGoods[] goods = lampsMapper.findAll();
+		Res res = restTemplate.postForObject("http://118.123.247.219:43333/lamps/syncGoodsList", goods, Res.class);
+		System.out.println(res.toString());
+	}
+	
+	@Test
+	public void test_uptLampsResource() {
+		lampsService.uptLampsResource();
+	}
+	
+	@Test
+	public void testFindGoods() {
+		SAPGoods[] goods = lampsMapper.findGoodsListByType(0);
+		System.out.println("--");
+		System.out.println(JSON.toJSONString(goods));
+	}
+}

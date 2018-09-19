@@ -1,0 +1,10 @@
+package com.dee.ssm.jni;
+
+public class JNIDee {
+
+    static {
+        System.loadLibrary("DeeCpp");
+    }
+
+    public native void openProjResFile();//打开project关联资源文件
+}

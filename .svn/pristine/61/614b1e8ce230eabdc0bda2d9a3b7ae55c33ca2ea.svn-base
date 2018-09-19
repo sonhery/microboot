@@ -1,0 +1,446 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.DJTaskWorkMapper">
+  <resultMap id="BaseResultMap" type="model.DJTaskWork">
+    <id column="ID" jdbcType="VARCHAR" property="id" />
+    <result column="PROJECT_YEAR_MONTH" jdbcType="VARCHAR" property="projectYearMonth" />
+    <result column="FILE_NAME" jdbcType="VARCHAR" property="fileName" />
+    <result column="GUID" jdbcType="VARCHAR" property="guid" />
+    <result column="TASK_ID" jdbcType="DECIMAL" property="taskId" />
+    <result column="UNIQUE_ID" jdbcType="DECIMAL" property="uniqueId" />
+    <result column="WBS" jdbcType="VARCHAR" property="wbs" />
+    <result column="MODEL" jdbcType="VARCHAR" property="model" />
+    <result column="NAME" jdbcType="VARCHAR" property="name" />
+    <result column="CONTACT" jdbcType="VARCHAR" property="contact" />
+    <result column="START" jdbcType="TIMESTAMP" property="start" />
+    <result column="FINISH" jdbcType="TIMESTAMP" property="finish" />
+    <result column="ACTIVE" jdbcType="DECIMAL" property="active" />
+    <result column="SUPERIOR_TASK_ID" jdbcType="VARCHAR" property="superiorTaskId" />
+    <result column="CALENDAR_UNIQUE_ID" jdbcType="DECIMAL" property="calendarUniqueId" />
+    <result column="CALENDAR_NAME" jdbcType="VARCHAR" property="calendarName" />
+    <result column="PRIORITY" jdbcType="DECIMAL" property="priority" />
+    <result column="CREATE_DATE" jdbcType="TIMESTAMP" property="createDate" />
+    <result column="TEXT1" jdbcType="VARCHAR" property="text1" />
+    <result column="TEXT2" jdbcType="VARCHAR" property="text2" />
+    <result column="TEXT3" jdbcType="VARCHAR" property="text3" />
+    <result column="TEXT4" jdbcType="VARCHAR" property="text4" />
+    <result column="TEXT5" jdbcType="VARCHAR" property="text5" />
+    <result column="TEXT6" jdbcType="VARCHAR" property="text6" />
+    <result column="TEXT7" jdbcType="VARCHAR" property="text7" />
+    <result column="TEXT8" jdbcType="VARCHAR" property="text8" />
+    <result column="TEXT9" jdbcType="VARCHAR" property="text9" />
+    <result column="TEXT10" jdbcType="VARCHAR" property="text10" />
+    <result column="TEXT11" jdbcType="VARCHAR" property="text11" />
+    <result column="TEXT12" jdbcType="VARCHAR" property="text12" />
+    <result column="DATE1" jdbcType="TIMESTAMP" property="date1" />
+    <result column="COST1" jdbcType="DECIMAL" property="cost1" />
+    <result column="COST2" jdbcType="DECIMAL" property="cost2" />
+    <result column="COST3" jdbcType="DECIMAL" property="cost3" />
+    <result column="NUMBER1" jdbcType="DECIMAL" property="number1" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    ID, PROJECT_YEAR_MONTH, FILE_NAME, GUID, TASK_ID, UNIQUE_ID, WBS, MODEL, "NAME", 
+    CONTACT, "START", FINISH, ACTIVE, SUPERIOR_TASK_ID, CALENDAR_UNIQUE_ID, CALENDAR_NAME, 
+    PRIORITY, CREATE_DATE, TEXT1, TEXT2, TEXT3, TEXT4, TEXT5, TEXT6, TEXT7, TEXT8, TEXT9, 
+    TEXT10, TEXT11, TEXT12, DATE1, COST1, COST2, COST3, NUMBER1
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from DJ_TASK_WORK
+    where ID = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from DJ_TASK_WORK
+    where ID = #{id,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="model.DJTaskWork">
+    insert into DJ_TASK_WORK (ID, PROJECT_YEAR_MONTH, FILE_NAME, 
+      GUID, TASK_ID, UNIQUE_ID, 
+      WBS, MODEL, "NAME", CONTACT, 
+      "START", FINISH, ACTIVE, 
+      SUPERIOR_TASK_ID, CALENDAR_UNIQUE_ID, CALENDAR_NAME, 
+      PRIORITY, CREATE_DATE, TEXT1, 
+      TEXT2, TEXT3, TEXT4, 
+      TEXT5, TEXT6, TEXT7, 
+      TEXT8, TEXT9, TEXT10, 
+      TEXT11, TEXT12, DATE1, 
+      COST1, COST2, COST3, 
+      NUMBER1)
+    values (#{id,jdbcType=VARCHAR}, #{projectYearMonth,jdbcType=VARCHAR}, #{fileName,jdbcType=VARCHAR}, 
+      #{guid,jdbcType=VARCHAR}, #{taskId,jdbcType=DECIMAL}, #{uniqueId,jdbcType=DECIMAL}, 
+      #{wbs,jdbcType=VARCHAR}, #{model,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{contact,jdbcType=VARCHAR}, 
+      #{start,jdbcType=TIMESTAMP}, #{finish,jdbcType=TIMESTAMP}, #{active,jdbcType=DECIMAL}, 
+      #{superiorTaskId,jdbcType=VARCHAR}, #{calendarUniqueId,jdbcType=DECIMAL}, #{calendarName,jdbcType=VARCHAR}, 
+      #{priority,jdbcType=DECIMAL}, #{createDate,jdbcType=TIMESTAMP}, #{text1,jdbcType=VARCHAR}, 
+      #{text2,jdbcType=VARCHAR}, #{text3,jdbcType=VARCHAR}, #{text4,jdbcType=VARCHAR}, 
+      #{text5,jdbcType=VARCHAR}, #{text6,jdbcType=VARCHAR}, #{text7,jdbcType=VARCHAR}, 
+      #{text8,jdbcType=VARCHAR}, #{text9,jdbcType=VARCHAR}, #{text10,jdbcType=VARCHAR}, 
+      #{text11,jdbcType=VARCHAR}, #{text12,jdbcType=VARCHAR}, #{date1,jdbcType=TIMESTAMP}, 
+      #{cost1,jdbcType=DECIMAL}, #{cost2,jdbcType=DECIMAL}, #{cost3,jdbcType=DECIMAL}, 
+      #{number1,jdbcType=DECIMAL})
+  </insert>
+  <insert id="insertSelective" parameterType="model.DJTaskWork">
+    insert into DJ_TASK_WORK
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        ID,
+      </if>
+      <if test="projectYearMonth != null">
+        PROJECT_YEAR_MONTH,
+      </if>
+      <if test="fileName != null">
+        FILE_NAME,
+      </if>
+      <if test="guid != null">
+        GUID,
+      </if>
+      <if test="taskId != null">
+        TASK_ID,
+      </if>
+      <if test="uniqueId != null">
+        UNIQUE_ID,
+      </if>
+      <if test="wbs != null">
+        WBS,
+      </if>
+      <if test="model != null">
+        MODEL,
+      </if>
+      <if test="name != null">
+        "NAME",
+      </if>
+      <if test="contact != null">
+        CONTACT,
+      </if>
+      <if test="start != null">
+        "START",
+      </if>
+      <if test="finish != null">
+        FINISH,
+      </if>
+      <if test="active != null">
+        ACTIVE,
+      </if>
+      <if test="superiorTaskId != null">
+        SUPERIOR_TASK_ID,
+      </if>
+      <if test="calendarUniqueId != null">
+        CALENDAR_UNIQUE_ID,
+      </if>
+      <if test="calendarName != null">
+        CALENDAR_NAME,
+      </if>
+      <if test="priority != null">
+        PRIORITY,
+      </if>
+      <if test="createDate != null">
+        CREATE_DATE,
+      </if>
+      <if test="text1 != null">
+        TEXT1,
+      </if>
+      <if test="text2 != null">
+        TEXT2,
+      </if>
+      <if test="text3 != null">
+        TEXT3,
+      </if>
+      <if test="text4 != null">
+        TEXT4,
+      </if>
+      <if test="text5 != null">
+        TEXT5,
+      </if>
+      <if test="text6 != null">
+        TEXT6,
+      </if>
+      <if test="text7 != null">
+        TEXT7,
+      </if>
+      <if test="text8 != null">
+        TEXT8,
+      </if>
+      <if test="text9 != null">
+        TEXT9,
+      </if>
+      <if test="text10 != null">
+        TEXT10,
+      </if>
+      <if test="text11 != null">
+        TEXT11,
+      </if>
+      <if test="text12 != null">
+        TEXT12,
+      </if>
+      <if test="date1 != null">
+        DATE1,
+      </if>
+      <if test="cost1 != null">
+        COST1,
+      </if>
+      <if test="cost2 != null">
+        COST2,
+      </if>
+      <if test="cost3 != null">
+        COST3,
+      </if>
+      <if test="number1 != null">
+        NUMBER1,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="projectYearMonth != null">
+        #{projectYearMonth,jdbcType=VARCHAR},
+      </if>
+      <if test="fileName != null">
+        #{fileName,jdbcType=VARCHAR},
+      </if>
+      <if test="guid != null">
+        #{guid,jdbcType=VARCHAR},
+      </if>
+      <if test="taskId != null">
+        #{taskId,jdbcType=DECIMAL},
+      </if>
+      <if test="uniqueId != null">
+        #{uniqueId,jdbcType=DECIMAL},
+      </if>
+      <if test="wbs != null">
+        #{wbs,jdbcType=VARCHAR},
+      </if>
+      <if test="model != null">
+        #{model,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="contact != null">
+        #{contact,jdbcType=VARCHAR},
+      </if>
+      <if test="start != null">
+        #{start,jdbcType=TIMESTAMP},
+      </if>
+      <if test="finish != null">
+        #{finish,jdbcType=TIMESTAMP},
+      </if>
+      <if test="active != null">
+        #{active,jdbcType=DECIMAL},
+      </if>
+      <if test="superiorTaskId != null">
+        #{superiorTaskId,jdbcType=VARCHAR},
+      </if>
+      <if test="calendarUniqueId != null">
+        #{calendarUniqueId,jdbcType=DECIMAL},
+      </if>
+      <if test="calendarName != null">
+        #{calendarName,jdbcType=VARCHAR},
+      </if>
+      <if test="priority != null">
+        #{priority,jdbcType=DECIMAL},
+      </if>
+      <if test="createDate != null">
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="text1 != null">
+        #{text1,jdbcType=VARCHAR},
+      </if>
+      <if test="text2 != null">
+        #{text2,jdbcType=VARCHAR},
+      </if>
+      <if test="text3 != null">
+        #{text3,jdbcType=VARCHAR},
+      </if>
+      <if test="text4 != null">
+        #{text4,jdbcType=VARCHAR},
+      </if>
+      <if test="text5 != null">
+        #{text5,jdbcType=VARCHAR},
+      </if>
+      <if test="text6 != null">
+        #{text6,jdbcType=VARCHAR},
+      </if>
+      <if test="text7 != null">
+        #{text7,jdbcType=VARCHAR},
+      </if>
+      <if test="text8 != null">
+        #{text8,jdbcType=VARCHAR},
+      </if>
+      <if test="text9 != null">
+        #{text9,jdbcType=VARCHAR},
+      </if>
+      <if test="text10 != null">
+        #{text10,jdbcType=VARCHAR},
+      </if>
+      <if test="text11 != null">
+        #{text11,jdbcType=VARCHAR},
+      </if>
+      <if test="text12 != null">
+        #{text12,jdbcType=VARCHAR},
+      </if>
+      <if test="date1 != null">
+        #{date1,jdbcType=TIMESTAMP},
+      </if>
+      <if test="cost1 != null">
+        #{cost1,jdbcType=DECIMAL},
+      </if>
+      <if test="cost2 != null">
+        #{cost2,jdbcType=DECIMAL},
+      </if>
+      <if test="cost3 != null">
+        #{cost3,jdbcType=DECIMAL},
+      </if>
+      <if test="number1 != null">
+        #{number1,jdbcType=DECIMAL},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="model.DJTaskWork">
+    update DJ_TASK_WORK
+    <set>
+      <if test="projectYearMonth != null">
+        PROJECT_YEAR_MONTH = #{projectYearMonth,jdbcType=VARCHAR},
+      </if>
+      <if test="fileName != null">
+        FILE_NAME = #{fileName,jdbcType=VARCHAR},
+      </if>
+      <if test="guid != null">
+        GUID = #{guid,jdbcType=VARCHAR},
+      </if>
+      <if test="taskId != null">
+        TASK_ID = #{taskId,jdbcType=DECIMAL},
+      </if>
+      <if test="uniqueId != null">
+        UNIQUE_ID = #{uniqueId,jdbcType=DECIMAL},
+      </if>
+      <if test="wbs != null">
+        WBS = #{wbs,jdbcType=VARCHAR},
+      </if>
+      <if test="model != null">
+        MODEL = #{model,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        "NAME" = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="contact != null">
+        CONTACT = #{contact,jdbcType=VARCHAR},
+      </if>
+      <if test="start != null">
+        "START" = #{start,jdbcType=TIMESTAMP},
+      </if>
+      <if test="finish != null">
+        FINISH = #{finish,jdbcType=TIMESTAMP},
+      </if>
+      <if test="active != null">
+        ACTIVE = #{active,jdbcType=DECIMAL},
+      </if>
+      <if test="superiorTaskId != null">
+        SUPERIOR_TASK_ID = #{superiorTaskId,jdbcType=VARCHAR},
+      </if>
+      <if test="calendarUniqueId != null">
+        CALENDAR_UNIQUE_ID = #{calendarUniqueId,jdbcType=DECIMAL},
+      </if>
+      <if test="calendarName != null">
+        CALENDAR_NAME = #{calendarName,jdbcType=VARCHAR},
+      </if>
+      <if test="priority != null">
+        PRIORITY = #{priority,jdbcType=DECIMAL},
+      </if>
+      <if test="createDate != null">
+        CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="text1 != null">
+        TEXT1 = #{text1,jdbcType=VARCHAR},
+      </if>
+      <if test="text2 != null">
+        TEXT2 = #{text2,jdbcType=VARCHAR},
+      </if>
+      <if test="text3 != null">
+        TEXT3 = #{text3,jdbcType=VARCHAR},
+      </if>
+      <if test="text4 != null">
+        TEXT4 = #{text4,jdbcType=VARCHAR},
+      </if>
+      <if test="text5 != null">
+        TEXT5 = #{text5,jdbcType=VARCHAR},
+      </if>
+      <if test="text6 != null">
+        TEXT6 = #{text6,jdbcType=VARCHAR},
+      </if>
+      <if test="text7 != null">
+        TEXT7 = #{text7,jdbcType=VARCHAR},
+      </if>
+      <if test="text8 != null">
+        TEXT8 = #{text8,jdbcType=VARCHAR},
+      </if>
+      <if test="text9 != null">
+        TEXT9 = #{text9,jdbcType=VARCHAR},
+      </if>
+      <if test="text10 != null">
+        TEXT10 = #{text10,jdbcType=VARCHAR},
+      </if>
+      <if test="text11 != null">
+        TEXT11 = #{text11,jdbcType=VARCHAR},
+      </if>
+      <if test="text12 != null">
+        TEXT12 = #{text12,jdbcType=VARCHAR},
+      </if>
+      <if test="date1 != null">
+        DATE1 = #{date1,jdbcType=TIMESTAMP},
+      </if>
+      <if test="cost1 != null">
+        COST1 = #{cost1,jdbcType=DECIMAL},
+      </if>
+      <if test="cost2 != null">
+        COST2 = #{cost2,jdbcType=DECIMAL},
+      </if>
+      <if test="cost3 != null">
+        COST3 = #{cost3,jdbcType=DECIMAL},
+      </if>
+      <if test="number1 != null">
+        NUMBER1 = #{number1,jdbcType=DECIMAL},
+      </if>
+    </set>
+    where ID = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="model.DJTaskWork">
+    update DJ_TASK_WORK
+    set PROJECT_YEAR_MONTH = #{projectYearMonth,jdbcType=VARCHAR},
+      FILE_NAME = #{fileName,jdbcType=VARCHAR},
+      GUID = #{guid,jdbcType=VARCHAR},
+      TASK_ID = #{taskId,jdbcType=DECIMAL},
+      UNIQUE_ID = #{uniqueId,jdbcType=DECIMAL},
+      WBS = #{wbs,jdbcType=VARCHAR},
+      MODEL = #{model,jdbcType=VARCHAR},
+      "NAME" = #{name,jdbcType=VARCHAR},
+      CONTACT = #{contact,jdbcType=VARCHAR},
+      "START" = #{start,jdbcType=TIMESTAMP},
+      FINISH = #{finish,jdbcType=TIMESTAMP},
+      ACTIVE = #{active,jdbcType=DECIMAL},
+      SUPERIOR_TASK_ID = #{superiorTaskId,jdbcType=VARCHAR},
+      CALENDAR_UNIQUE_ID = #{calendarUniqueId,jdbcType=DECIMAL},
+      CALENDAR_NAME = #{calendarName,jdbcType=VARCHAR},
+      PRIORITY = #{priority,jdbcType=DECIMAL},
+      CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      TEXT1 = #{text1,jdbcType=VARCHAR},
+      TEXT2 = #{text2,jdbcType=VARCHAR},
+      TEXT3 = #{text3,jdbcType=VARCHAR},
+      TEXT4 = #{text4,jdbcType=VARCHAR},
+      TEXT5 = #{text5,jdbcType=VARCHAR},
+      TEXT6 = #{text6,jdbcType=VARCHAR},
+      TEXT7 = #{text7,jdbcType=VARCHAR},
+      TEXT8 = #{text8,jdbcType=VARCHAR},
+      TEXT9 = #{text9,jdbcType=VARCHAR},
+      TEXT10 = #{text10,jdbcType=VARCHAR},
+      TEXT11 = #{text11,jdbcType=VARCHAR},
+      TEXT12 = #{text12,jdbcType=VARCHAR},
+      DATE1 = #{date1,jdbcType=TIMESTAMP},
+      COST1 = #{cost1,jdbcType=DECIMAL},
+      COST2 = #{cost2,jdbcType=DECIMAL},
+      COST3 = #{cost3,jdbcType=DECIMAL},
+      NUMBER1 = #{number1,jdbcType=DECIMAL}
+    where ID = #{id,jdbcType=VARCHAR}
+  </update>
+</mapper>

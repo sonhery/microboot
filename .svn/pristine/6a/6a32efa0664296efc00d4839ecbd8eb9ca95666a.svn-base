@@ -1,0 +1,31 @@
+package com.dee.xql.proj.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.dee.xql.api.model.Res;
+import com.dee.xql.proj.service.LampsService;
+
+@RestController
+public class HelloController {
+	
+	@Autowired
+	private LampsService lampsService;
+
+	@RequestMapping(value = "/index")
+	public Object index() {
+		return "xql-project";
+	}
+
+	@RequestMapping(value = "/hello/get")
+	public Res get() {
+		Res res = new Res();
+		String fileName = "D:\\xql-work\\灯具\\201808-灯具测试.mpp";
+		lampsService.addLampsData(fileName, 111L);
+		res.setCode(1);
+		return res;
+	}
+	
+	
+}

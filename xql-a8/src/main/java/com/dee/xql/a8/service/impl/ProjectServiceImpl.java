@@ -1,0 +1,207 @@
+package com.dee.xql.a8.service.impl;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.alibaba.druid.util.StringUtils;
+import com.dee.xql.a8.config.CommonsConfig;
+import com.dee.xql.a8.service.A8AttachmentService;
+import com.dee.xql.a8.service.MemberService;
+import com.dee.xql.a8.service.MppTemplateService;
+import com.dee.xql.a8.service.ProjectService;
+import com.dee.xql.a8.service.RestService;
+import com.dee.xql.api.constants.Constants;
+import com.dee.xql.api.constants.SMSType;
+import com.dee.xql.api.model.Member;
+import com.dee.xql.api.model.MppTemplate;
+import com.dee.xql.api.model.SmsParam;
+import com.dee.xql.api.utils.ReplaceProjectName;
+import com.dee.xql.api.utils.SVNHelper;
+
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@Service
+public class ProjectServiceImpl implements ProjectService {
+
+	@Autowired
+	private MppTemplateService mppTemplateService;
+	@Autowired
+	private A8AttachmentService a8AttachmentService;
+	@Autowired
+	private MemberService memberService;
+	@Autowired
+	private CommonsConfig commonsConfig;
+	@Autowired
+	private RestService restService;
+
+	@Override
+	public boolean genMppTemplateByProjectSetup(Long summaryId) {
+		// 获得流程数据
+		MppTemplate mppTpl = mppTemplateService.findBySummaryId(summaryId);
+		return genMppTemplate(mppTpl);
+	}
+
+	@Override
+	public boolean genMppTemplateByContractRegister(Long summaryId) {
+		MppTemplate mppTpl = mppTemplateService.findByContractRegisterSummaryId(summaryId);
+		return genMppTemplate(mppTpl);
+	}
+
+	private boolean genMppTemplate(MppTemplate mppTpl) {
+		if (mppTpl == null || mppTpl.getProjectId() == null || "".equals(mppTpl.getProjectId())) {
+			log.info("genMppTemplateByProjectSetup mppTpl == null");
+			return false;
+		}
+		if (!mppTpl.getAuditResult().equals(Constants.AUDIT_AGREE)) {
+			log.info("genMppTemplateByProjectSetup !mppTpl.getAuditResult().equals(Constants.AUDIT_AGREE)");
+			return false;
+		}
+		// ---------------- 2018-09-10修改之前 -----------------
+		// String dir = commonsConfig.getSvn_export_path();
+		// ---------------- 2018-09-10修改之前 -----------------
+		String dir = commonsConfig.getSvn_export_path() + Constants.SVN_DIR_PC + File.separator;
+		// ---------------- 修改结束 ------------------------
+
+		// 生成模板之前先 update SVN 文件
+		Long res = SVNHelper.update(dir, commonsConfig.getSvn_username(), commonsConfig.getSvn_password());
+		log.info("SVNHelper update success, version: " + res);
+		if (res <= 0) {
+			log.info("SVNHelper update failure");
+			return false;
+		}
+		// ---------------- 2018-09-10添加项目计划排程的年月目录 -----------------
+		// 从项目ID里获取文件的年月目录（取前4位）
+		String yearMonth = mppTpl.getProjectId().substring(0, 6);
+		// ---------------- 添加结束 ------------------------
+
+		dir = dir + yearMonth + File.separator + mppTpl.getProjectId().trim() + "-" + mppTpl.getProjectName().trim()
+				+ File.separator;
+		File dirFile = new File(dir);
+		boolean bRet = dirFile.exists();
+		if (!bRet) {// 创建文件夹
+			dirFile.mkdirs();
+		}
+		File yearMonthFile = new File(dir);
+		if (!yearMonthFile.exists()) {
+			yearMonthFile.mkdirs();
+		}
+		List<File> files = this.getMppFiles(mppTpl, dir);
+		if (files == null || files.size() <= 0) {
+			log.info("genMppTemplateByProjectSetup files==null||files.size()<=0");
+			return false;
+		}
+		log.info(dir);
+		// 文件生成好之后提交 SVN
+		bRet = SVNHelper.add(dirFile, commonsConfig.getSvn_username(), commonsConfig.getSvn_password());
+		if (bRet) {// 提交成功之后发送短信
+			String phones = this.getPhones(mppTpl);
+			String projectName = ReplaceProjectName.sub(mppTpl.getProjectName());
+			if (!StringUtils.isEmpty(phones)) {
+				SmsParam param = new SmsParam();
+				param.setType(SMSType.SMS_GEN_PROJ_TPL);
+				param.setPhones(phones);
+				param.setTplParam(
+						"{'projectId':'" + mppTpl.getProjectId().trim() + "','projectName':'" + projectName + "'}");
+				restService.sendSms(commonsConfig.getProject_server() + "sms/send", param);
+			}
+		}
+		return true;
+	}
+
+	@Override
+	public String getPhones(MppTemplate mppTpl) {
+		if (mppTpl == null) {
+			return null;
+		}
+		StringBuilder sb = new StringBuilder();
+		Member member;
+		if (!StringUtils.isEmpty(mppTpl.getSalePersionId())) {
+			member = memberService.findById(Long.valueOf(mppTpl.getSalePersionId()));
+			if (member != null && !StringUtils.isEmpty(member.getExtAttr1())) {
+				sb.append(member.getExtAttr1());
+				sb.append(",");
+			}
+		}
+		if (!StringUtils.isEmpty(mppTpl.getDesignPersionId())) {
+			member = memberService.findById(Long.valueOf(mppTpl.getDesignPersionId()));
+			if (member != null && !StringUtils.isEmpty(member.getExtAttr1())) {
+				sb.append(member.getExtAttr1());
+				sb.append(",");
+			}
+		}
+		if (!StringUtils.isEmpty(mppTpl.getFactoryPersionId())) {
+			member = memberService.findById(Long.valueOf(mppTpl.getFactoryPersionId()));
+			if (member != null && !StringUtils.isEmpty(member.getExtAttr1())) {
+				sb.append(member.getExtAttr1());
+				sb.append(",");
+			}
+		}
+		if (!StringUtils.isEmpty(mppTpl.getScenePersionId())) {
+			member = memberService.findById(Long.valueOf(mppTpl.getScenePersionId()));
+			if (member != null && !StringUtils.isEmpty(member.getExtAttr1())) {
+				sb.append(member.getExtAttr1());
+				sb.append(",");
+			}
+		}
+		if (sb.length() > 0) {
+			sb.deleteCharAt(sb.length() - 1);
+		}
+		return sb.toString();
+	}
+
+	private List<File> getMppFiles(MppTemplate mppTpl, String dir) {
+		if (mppTpl == null) {
+			return new ArrayList<File>();
+		}
+
+		String path = "";
+		List<File> files = new ArrayList<File>();
+		if (!StringUtils.isEmpty(mppTpl.getSaleAttId())) {
+			path = dir + mppTpl.getProjectId().trim() + "A" + "-" + mppTpl.getProjectName().trim() + "-" + "销售.mpp";
+			File file = new File(path);
+			if (!file.exists()) {
+				a8AttachmentService.findAttBySubReference(Long.valueOf(mppTpl.getSaleAttId()), 0, file);
+				if (file != null) {
+					files.add(file);
+				}
+			}
+		}
+		if (!StringUtils.isEmpty(mppTpl.getDesignAttId())) {
+			path = dir + mppTpl.getProjectId().trim() + "B" + "-" + mppTpl.getProjectName().trim() + "-" + "设计.mpp";
+			File file = new File(path);
+			if (!file.exists()) {
+				a8AttachmentService.findAttBySubReference(Long.valueOf(mppTpl.getDesignAttId()), 0, file);
+				if (file != null) {
+					files.add(file);
+				}
+			}
+		}
+		if (!StringUtils.isEmpty(mppTpl.getFactoryAttId())) {
+			path = dir + mppTpl.getProjectId().trim() + "C" + "-" + mppTpl.getProjectName().trim() + "-" + "工厂.mpp";
+			File file = new File(path);
+			if (!file.exists()) {
+				a8AttachmentService.findAttBySubReference(Long.valueOf(mppTpl.getFactoryAttId()), 0, file);
+				if (file != null) {
+					files.add(file);
+				}
+			}
+		}
+		if (!StringUtils.isEmpty(mppTpl.getSceneAttId())) {
+			path = dir + mppTpl.getProjectId().trim() + "D" + "-" + mppTpl.getProjectName().trim() + "-" + "现场.mpp";
+			File file = new File(path);
+			if (!file.exists()) {
+				a8AttachmentService.findAttBySubReference(Long.valueOf(mppTpl.getSceneAttId()), 0, file);
+				if (file != null) {
+					files.add(file);
+				}
+			}
+		}
+		return files;
+	}
+
+}

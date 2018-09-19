@@ -1,0 +1,8 @@
+package com.dee.xql.api.constants;
+
+public class Constants {
+
+	public static final String AUDIT_AGREE = "同意";
+	public static final String MPP_ARCHIVE = "归档";
+
+}

@@ -1,0 +1,67 @@
+{
+  "hints": [],
+  "groups": [
+    {
+      "sourceType": "com.dee.xql.a8.config.CommonsConfig",
+      "name": "dee.xql",
+      "type": "com.dee.xql.a8.config.CommonsConfig"
+    }
+  ],
+  "properties": [
+    {
+      "sourceType": "com.dee.xql.a8.config.CommonsConfig",
+      "name": "dee.xql.a8-temporary-dir",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.dee.xql.a8.config.CommonsConfig",
+      "name": "dee.xql.a8-upload-dir",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.dee.xql.a8.config.CommonsConfig",
+      "name": "dee.xql.dydsms-access-key-id",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.dee.xql.a8.config.CommonsConfig",
+      "name": "dee.xql.dydsms-access-key-secret",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.dee.xql.a8.config.CommonsConfig",
+      "name": "dee.xql.project-server",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.dee.xql.a8.config.CommonsConfig",
+      "name": "dee.xql.svn-export-path",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.dee.xql.a8.config.CommonsConfig",
+      "name": "dee.xql.svn-password",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.dee.xql.a8.config.CommonsConfig",
+      "name": "dee.xql.svn-resource-dir",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.dee.xql.a8.config.CommonsConfig",
+      "name": "dee.xql.svn-url",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.dee.xql.a8.config.CommonsConfig",
+      "name": "dee.xql.svn-username",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.dee.xql.a8.config.CommonsConfig",
+      "name": "dee.xql.svn-version-file",
+      "type": "java.lang.String"
+    }
+  ]
+}

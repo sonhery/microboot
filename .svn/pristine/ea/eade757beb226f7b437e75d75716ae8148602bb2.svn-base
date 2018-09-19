@@ -1,0 +1,320 @@
+package com.dee.xql.api.model;
+
+import java.io.Serializable;
+import java.util.Date;
+
+/**
+ * 资源工作表
+ */
+public class ResourceItem implements Serializable {
+    /**
+     *
+     */
+    private static final long serialVersionUID = 610712338354116767L;
+    private String id;//资源主键id
+    private String resourceUid;//资源GUID
+    private String resName;//资源名称
+    private String resInitials;//资源缩写，代表负责人姓名
+    private String resCode;//资源代码，代表负责人手机
+    private String resType;//资源类型
+    private String resUnit;//资源单位
+    private String resGroup;//资源分组
+    private String notes;//备注
+    private Double maxUnits;//最大单位
+    private Double standardRate;//标准费率
+    private Double overtimeRate;//加班费率
+    private Date activeStartDate;//可用开始日期
+    private Date activeEndDate;//可用结束日期
+    private Date createDate;//创建时间
+    private Integer active;//活动状态
+    private String fileName;//文件名称
+    private Long summaryId;//最新流程ID
+    private Long svnLastVersion;
+    private Double costPerUse;//每次使用成本
+    private Double cost;//成本
+    private Double overtimeCost;//加班成本
+    private Double actualCost;//实际成本
+    private Double actualOvertimeCost;//实际加班成本
+    private Double actualOvertimeWork;//实际加班工时
+    private Double percentWorkComplete;//工时完成百分比
+    private Double remainingCost;//剩余成本
+    private Double remainingWork;//剩余工时
+    private Double remainingOvertimeCost;//剩余加班成本
+    private Double remainingOvertimeWork;//剩余加班工时
+    private String hyperlink;//超链接
+    private String hyperlinkAddress;//超链接地址
+    private String baseCalendar;//基准日历
+    private String calendarGuid;//日历GUID
+
+    public Double getCostPerUse() {
+        return costPerUse;
+    }
+
+    public void setCostPerUse(Double costPerUse) {
+        this.costPerUse = costPerUse;
+    }
+
+    public Double getCost() {
+        return cost;
+    }
+
+    public void setCost(Double cost) {
+        this.cost = cost;
+    }
+
+    public Double getOvertimeCost() {
+        return overtimeCost;
+    }
+
+    public void setOvertimeCost(Double overtimeCost) {
+        this.overtimeCost = overtimeCost;
+    }
+
+    public Double getActualCost() {
+        return actualCost;
+    }
+
+    public void setActualCost(Double actualCost) {
+        this.actualCost = actualCost;
+    }
+
+    public Double getActualOvertimeCost() {
+        return actualOvertimeCost;
+    }
+
+    public void setActualOvertimeCost(Double actualOvertimeCost) {
+        this.actualOvertimeCost = actualOvertimeCost;
+    }
+
+    public Double getActualOvertimeWork() {
+        return actualOvertimeWork;
+    }
+
+    public void setActualOvertimeWork(Double actualOvertimeWork) {
+        this.actualOvertimeWork = actualOvertimeWork;
+    }
+
+    public Double getPercentWorkComplete() {
+        return percentWorkComplete;
+    }
+
+    public void setPercentWorkComplete(Double percentWorkComplete) {
+        this.percentWorkComplete = percentWorkComplete;
+    }
+
+    public Double getRemainingCost() {
+        return remainingCost;
+    }
+
+    public void setRemainingCost(Double remainingCost) {
+        this.remainingCost = remainingCost;
+    }
+
+    public Double getRemainingWork() {
+        return remainingWork;
+    }
+
+    public void setRemainingWork(Double remainingWork) {
+        this.remainingWork = remainingWork;
+    }
+
+    public Double getRemainingOvertimeCost() {
+        return remainingOvertimeCost;
+    }
+
+    public void setRemainingOvertimeCost(Double remainingOvertimeCost) {
+        this.remainingOvertimeCost = remainingOvertimeCost;
+    }
+
+    public Double getRemainingOvertimeWork() {
+        return remainingOvertimeWork;
+    }
+
+    public void setRemainingOvertimeWork(Double remainingOvertimeWork) {
+        this.remainingOvertimeWork = remainingOvertimeWork;
+    }
+
+    public String getHyperlink() {
+        return hyperlink;
+    }
+
+    public void setHyperlink(String hyperlink) {
+        this.hyperlink = hyperlink;
+    }
+
+    public String getHyperlinkAddress() {
+        return hyperlinkAddress;
+    }
+
+    public void setHyperlinkAddress(String hyperlinkAddress) {
+        this.hyperlinkAddress = hyperlinkAddress;
+    }
+
+    public String getBaseCalendar() {
+        return baseCalendar;
+    }
+
+    public void setBaseCalendar(String baseCalendar) {
+        this.baseCalendar = baseCalendar;
+    }
+
+    public String getCalendarGuid() {
+        return calendarGuid;
+    }
+
+    public void setCalendarGuid(String calendarGuid) {
+        this.calendarGuid = calendarGuid;
+    }
+
+    public Long getSvnLastVersion() {
+        return svnLastVersion;
+    }
+
+    public void setSvnLastVersion(Long svnLastVersion) {
+        this.svnLastVersion = svnLastVersion;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getResourceUid() {
+        return resourceUid;
+    }
+
+    public void setResourceUid(String resourceUid) {
+        this.resourceUid = resourceUid;
+    }
+
+    public String getResName() {
+        return resName;
+    }
+
+    public void setResName(String resName) {
+        this.resName = resName;
+    }
+
+    public String getResInitials() {
+        return resInitials;
+    }
+
+    public void setResInitials(String resInitials) {
+        this.resInitials = resInitials;
+    }
+
+    public String getResCode() {
+        return resCode;
+    }
+
+    public void setResCode(String resCode) {
+        this.resCode = resCode;
+    }
+
+    public String getResType() {
+        return resType;
+    }
+
+    public void setResType(String resType) {
+        this.resType = resType;
+    }
+
+    public String getResUnit() {
+        return resUnit;
+    }
+
+    public void setResUnit(String resUnit) {
+        this.resUnit = resUnit;
+    }
+
+    public String getResGroup() {
+        return resGroup;
+    }
+
+    public void setResGroup(String resGroup) {
+        this.resGroup = resGroup;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }
+
+    public Double getMaxUnits() {
+        return maxUnits;
+    }
+
+    public void setMaxUnits(Double maxUnits) {
+        this.maxUnits = maxUnits;
+    }
+
+    public Double getStandardRate() {
+        return standardRate;
+    }
+
+    public void setStandardRate(Double standardRate) {
+        this.standardRate = standardRate;
+    }
+
+    public Double getOvertimeRate() {
+        return overtimeRate;
+    }
+
+    public void setOvertimeRate(Double overtimeRate) {
+        this.overtimeRate = overtimeRate;
+    }
+
+    public Date getActiveStartDate() {
+        return activeStartDate;
+    }
+
+    public void setActiveStartDate(Date activeStartDate) {
+        this.activeStartDate = activeStartDate;
+    }
+
+    public Date getActiveEndDate() {
+        return activeEndDate;
+    }
+
+    public void setActiveEndDate(Date activeEndDate) {
+        this.activeEndDate = activeEndDate;
+    }
+
+    public Date getCreateDate() {
+        return createDate;
+    }
+
+    public void setCreateDate(Date createTime) {
+        this.createDate = createTime;
+    }
+
+    public Integer getActive() {
+        return active;
+    }
+
+    public void setActive(Integer active) {
+        this.active = active;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
+    public Long getSummaryId() {
+        return summaryId;
+    }
+
+    public void setSummaryId(Long summaryId) {
+        this.summaryId = summaryId;
+    }
+}

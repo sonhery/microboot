@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.GGFrontTaskMapper">
+  <resultMap id="BaseResultMap" type="model.GGFrontTask">
+    <id column="ID" jdbcType="VARCHAR" property="id" />
+    <result column="TASK_ID" jdbcType="VARCHAR" property="taskId" />
+    <result column="FRONT_TASK_ID" jdbcType="VARCHAR" property="frontTaskId" />
+    <result column="TYPE" jdbcType="VARCHAR" property="type" />
+    <result column="DELAY_TIME" jdbcType="DECIMAL" property="delayTime" />
+    <result column="FILE_CODE" jdbcType="VARCHAR" property="fileCode" />
+    <result column="SVN_LAST_VERSION" jdbcType="DECIMAL" property="svnLastVersion" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    ID, TASK_ID, FRONT_TASK_ID, "TYPE", DELAY_TIME, FILE_CODE, SVN_LAST_VERSION
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from GG_FRONT_TASK
+    where ID = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from GG_FRONT_TASK
+    where ID = #{id,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="model.GGFrontTask">
+    insert into GG_FRONT_TASK (ID, TASK_ID, FRONT_TASK_ID, 
+      "TYPE", DELAY_TIME, FILE_CODE, 
+      SVN_LAST_VERSION)
+    values (#{id,jdbcType=VARCHAR}, #{taskId,jdbcType=VARCHAR}, #{frontTaskId,jdbcType=VARCHAR}, 
+      #{type,jdbcType=VARCHAR}, #{delayTime,jdbcType=DECIMAL}, #{fileCode,jdbcType=VARCHAR}, 
+      #{svnLastVersion,jdbcType=DECIMAL})
+  </insert>
+  <insert id="insertSelective" parameterType="model.GGFrontTask">
+    insert into GG_FRONT_TASK
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        ID,
+      </if>
+      <if test="taskId != null">
+        TASK_ID,
+      </if>
+      <if test="frontTaskId != null">
+        FRONT_TASK_ID,
+      </if>
+      <if test="type != null">
+        "TYPE",
+      </if>
+      <if test="delayTime != null">
+        DELAY_TIME,
+      </if>
+      <if test="fileCode != null">
+        FILE_CODE,
+      </if>
+      <if test="svnLastVersion != null">
+        SVN_LAST_VERSION,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="taskId != null">
+        #{taskId,jdbcType=VARCHAR},
+      </if>
+      <if test="frontTaskId != null">
+        #{frontTaskId,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null">
+        #{type,jdbcType=VARCHAR},
+      </if>
+      <if test="delayTime != null">
+        #{delayTime,jdbcType=DECIMAL},
+      </if>
+      <if test="fileCode != null">
+        #{fileCode,jdbcType=VARCHAR},
+      </if>
+      <if test="svnLastVersion != null">
+        #{svnLastVersion,jdbcType=DECIMAL},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="model.GGFrontTask">
+    update GG_FRONT_TASK
+    <set>
+      <if test="taskId != null">
+        TASK_ID = #{taskId,jdbcType=VARCHAR},
+      </if>
+      <if test="frontTaskId != null">
+        FRONT_TASK_ID = #{frontTaskId,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null">
+        "TYPE" = #{type,jdbcType=VARCHAR},
+      </if>
+      <if test="delayTime != null">
+        DELAY_TIME = #{delayTime,jdbcType=DECIMAL},
+      </if>
+      <if test="fileCode != null">
+        FILE_CODE = #{fileCode,jdbcType=VARCHAR},
+      </if>
+      <if test="svnLastVersion != null">
+        SVN_LAST_VERSION = #{svnLastVersion,jdbcType=DECIMAL},
+      </if>
+    </set>
+    where ID = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="model.GGFrontTask">
+    update GG_FRONT_TASK
+    set TASK_ID = #{taskId,jdbcType=VARCHAR},
+      FRONT_TASK_ID = #{frontTaskId,jdbcType=VARCHAR},
+      "TYPE" = #{type,jdbcType=VARCHAR},
+      DELAY_TIME = #{delayTime,jdbcType=DECIMAL},
+      FILE_CODE = #{fileCode,jdbcType=VARCHAR},
+      SVN_LAST_VERSION = #{svnLastVersion,jdbcType=DECIMAL}
+    where ID = #{id,jdbcType=VARCHAR}
+  </update>
+</mapper>

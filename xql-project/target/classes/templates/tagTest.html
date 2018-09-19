@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8" />
+<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+<title>内网标签测试</title>
+<link rel="stylesheet" type="text/css"
+	th:href="@{/vendor/bootstrap/css/bootstrap.css}" />
+</head>
+<body>
+	<div class="container" style="margin-top: 30px;">
+		<form action="" th:action="@{/doTagTest}" method="POST"
+			class="form-horizontal" id="customerForm">
+			<div class="form-group">
+				<label for="fileName" class="col-sm-2 control-label">选择文件：</label>
+				<div class="col-sm-10" style="">
+					<select class="form-control" name="fileName" id="fileName">
+						<option value=""></option>
+						<option th:each="name:${names}" th:value="${name}"
+							th:text="${name}"></option>
+					</select>
+				</div>
+			</div>
+		</form>
+
+			<div class="form-group">
+			
+				<div class="col-sm-offset-2 col-sm-10" style="padding-left:5px;">
+					<button class="btn btn-default" id="btnOk">确认</button>
+				</div>
+			</div>
+	</div>
+
+	<script type="text/javascript"
+		th:src="@{/vendor/jquery/jquery-3.3.1.js}"></script>
+	<script type="text/javascript"
+		th:src="@{/vendor/bootstrap/js/bootstrap.min.js}"></script>
+	<script type="text/javascript">
+		$("#btnOk").on("click", submitForm);
+
+		function submitForm(obj) {
+			var $form = $("#customerForm");
+			var url = $form.attr("action");
+			console.log($form.serialize());
+			$.ajax({
+				url : url,
+				type : "post",
+				async : true, // 是否异步请求（此处需这只为异步请求true，否则bootstrap的modal不会顺序显示）
+				cache : false, // 是否缓存此页面，每次都请求服务器
+				//contentType : "application/json", // 内容编码类型
+				dataType : "json", // 预期服务器返回数据格式
+				timeout : 60000, // 超时时间，60s
+				data : $form.serialize(), // 请求参数
+				error : function(xhr, errMsg, e) {
+					alert("内部错误");
+				},
+				success : function(data) {
+					alert(data.msg);
+					if (data.code == 1) {
+						$form[0].reset();
+					}
+				}, // 请求服务器成功的处理
+			});
+		} 
+	</script>
+</body>
+</html>

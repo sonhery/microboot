@@ -1,0 +1,123 @@
+{
+  "hints": [],
+  "groups": [
+    {
+      "sourceType": "com.dee.xql.proj.config.CommonsConfig",
+      "name": "dee.xql",
+      "type": "com.dee.xql.proj.config.CommonsConfig"
+    },
+    {
+      "sourceType": "com.dee.xql.proj.config.SmsCodeConfig",
+      "name": "sms.tpl.code",
+      "type": "com.dee.xql.proj.config.SmsCodeConfig"
+    },
+    {
+      "sourceType": "com.dee.xql.proj.config.DuridConfig",
+      "name": "spring.datasource",
+      "sourceMethod": "druidDataSource()",
+      "type": "javax.sql.DataSource"
+    },
+    {
+      "sourceType": "com.dee.xql.proj.config.DBConfig",
+      "name": "spring.datasource",
+      "type": "com.dee.xql.proj.config.DBConfig"
+    }
+  ],
+  "properties": [
+    {
+      "sourceType": "com.dee.xql.proj.config.CommonsConfig",
+      "name": "dee.xql.dydsms-access-key-id",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.dee.xql.proj.config.CommonsConfig",
+      "name": "dee.xql.dydsms-access-key-secret",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.dee.xql.proj.config.CommonsConfig",
+      "name": "dee.xql.svn-dj-dir",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.dee.xql.proj.config.CommonsConfig",
+      "name": "dee.xql.svn-dq-dir",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.dee.xql.proj.config.CommonsConfig",
+      "name": "dee.xql.svn-export-path",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.dee.xql.proj.config.CommonsConfig",
+      "name": "dee.xql.svn-gg-dir",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.dee.xql.proj.config.CommonsConfig",
+      "name": "dee.xql.svn-password",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.dee.xql.proj.config.CommonsConfig",
+      "name": "dee.xql.svn-pc-dir",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.dee.xql.proj.config.CommonsConfig",
+      "name": "dee.xql.svn-resource-dir",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.dee.xql.proj.config.CommonsConfig",
+      "name": "dee.xql.svn-url",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.dee.xql.proj.config.CommonsConfig",
+      "name": "dee.xql.svn-username",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.dee.xql.proj.config.CommonsConfig",
+      "name": "dee.xql.svn-version-file",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.dee.xql.proj.config.SmsCodeConfig",
+      "name": "sms.tpl.code.add-task",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.dee.xql.proj.config.SmsCodeConfig",
+      "name": "sms.tpl.code.gen-proj-tpl",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.dee.xql.proj.config.SmsCodeConfig",
+      "name": "sms.tpl.code.upt-task",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.dee.xql.proj.config.DBConfig",
+      "name": "spring.datasource.driver-class-name",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.dee.xql.proj.config.DBConfig",
+      "name": "spring.datasource.password",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.dee.xql.proj.config.DBConfig",
+      "name": "spring.datasource.url",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.dee.xql.proj.config.DBConfig",
+      "name": "spring.datasource.username",
+      "type": "java.lang.String"
+    }
+  ]
+}

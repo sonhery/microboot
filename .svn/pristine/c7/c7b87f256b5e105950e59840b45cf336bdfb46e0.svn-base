@@ -1,0 +1,8 @@
+package com.dee.xql.a8.service;
+
+
+public interface ContractService {
+	public String getPhoneBySummary(Long summaryId);
+	public String getProjectCode(Long summaryId);
+	public boolean sendMsg(Long summaryId);
+}

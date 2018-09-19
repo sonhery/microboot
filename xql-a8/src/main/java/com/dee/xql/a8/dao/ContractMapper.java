@@ -1,0 +1,37 @@
+package com.dee.xql.a8.dao;
+
+import java.util.Date;
+
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Result;
+import org.apache.ibatis.annotations.Results;
+import org.apache.ibatis.annotations.Select;
+
+import com.dee.xql.api.model.Contract;
+
+@Mapper
+public interface ContractMapper {
+	@Results(id = "BaseResultMap", value = { @Result(column = "ID", property = "id", javaType = Long.class),
+			@Result(column = "FIELD0001", property = "contractCode", javaType = String.class),
+			@Result(column = "FIELD0002", property = "projectCode", javaType = String.class),
+			@Result(column = "FIELD0003", property = "projectName", javaType = String.class),
+			@Result(column = "FIELD0005", property = "contractName", javaType = String.class),
+			@Result(column = "FIELD0031", property = "contractStartDate", javaType = Date.class),
+			@Result(column = "FIELD0032", property = "contractEndDate", javaType = Date.class),
+			@Result(column = "FIELD0043", property = "manager", javaType = String.class)
+	})
+	@Select("SELECT A.ID,A.FIELD0001,A.FIELD0002,A.FIELD0003,A.FIELD0005,A.FIELD0031,A.FIELD0032,A.FIELD0043 FROM FORMMAIN_1435 A LEFT JOIN COL_SUMMARY B ON B.FORM_RECORDID=A.ID WHERE B.ID=#{summaryId}")
+	public Contract getContractBySummaryId(@Param("summaryId") Long summaryId);
+	
+	/**
+	 * 根据流程ID获取施工图计划员手机号
+	 * @param summaryId
+	 * @return
+	 */
+	@Select("SELECT C.EXT_ATTR_1 FROM FORMMAIN_1435 A "
+			+ "LEFT JOIN COL_SUMMARY B ON B.FORM_RECORDID=A.ID "
+			+ "LEFT JOIN ORG_MEMBER C ON  A.FIELD0080=C.ID "
+			+ "WHERE B.ID= #{summaryId} ")
+	public String getPhoneBySummary(@Param("summaryId") Long summaryId);
+}

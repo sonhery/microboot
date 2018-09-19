@@ -1,0 +1,8 @@
+spring: 
+  profiles:
+    active: dev
+mybatis:
+  config-location: classpath:mybatis/mybatis.cfg.xml  # MyBatis配置文件所在路径
+  type-aliases-package: com.dee.xql.api.model         # 定义所有操作类的别名所在包,不用再xml文件写实体类的全路径
+  mapper-locations:                                   # 定义所有的mapper映射文件
+  - classpath:mybatis/mapper/**/*.xml

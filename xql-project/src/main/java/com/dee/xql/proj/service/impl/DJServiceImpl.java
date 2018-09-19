@@ -1,0 +1,474 @@
+package com.dee.xql.proj.service.impl;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.DigestUtils;
+
+import com.alibaba.fastjson.JSON;
+import com.dee.xql.api.model.DJData;
+import com.dee.xql.api.model.DJFrontTask;
+import com.dee.xql.api.model.DJProject;
+import com.dee.xql.api.model.DJResource;
+import com.dee.xql.api.model.DJTaskAllot;
+import com.dee.xql.api.model.DJTaskWork;
+import com.dee.xql.api.utils.DataHelper;
+import com.dee.xql.api.utils.DateHelper;
+import com.dee.xql.api.utils.UUIDLong;
+import com.dee.xql.proj.dao.DJMapper;
+import com.dee.xql.proj.service.DJService;
+
+import lombok.extern.slf4j.Slf4j;
+import net.sf.mpxj.ProjectFile;
+import net.sf.mpxj.Relation;
+import net.sf.mpxj.Resource;
+import net.sf.mpxj.ResourceAssignment;
+import net.sf.mpxj.ResourceContainer;
+import net.sf.mpxj.Task;
+import net.sf.mpxj.TaskContainer;
+import net.sf.mpxj.mpp.MPPReader;
+
+@Slf4j
+@Service
+public class DJServiceImpl implements DJService {
+
+	protected String m_fileName;
+	protected Long m_svnLastVersion;
+	protected String m_yearMonth;
+	protected DJProject m_currProj;
+	protected List<DJTaskWork> m_allWorks;
+	protected List<DJTaskAllot> m_allAllots;
+	protected List<DJFrontTask> m_allFronts;
+	protected List<DJResource> m_allResources;
+
+	@Autowired
+	private DJMapper djMapper;
+
+	@Transactional(rollbackFor = Exception.class)
+	@Override
+	public boolean addDJData(String path, Long svnLastVersion) {
+		try {
+			m_allWorks = new ArrayList<DJTaskWork>();
+			m_allAllots = new ArrayList<DJTaskAllot>();
+			m_allFronts = new ArrayList<DJFrontTask>();
+			m_allResources = new ArrayList<DJResource>();
+			DJData data = this.readDJMpp(path, svnLastVersion);
+			if (data == null) {
+				log.info("****** DJServiceImpl addDJData: data == null ******");
+				return false;
+			}
+			List<DJProject> projs = data.getProjs();
+			if (projs == null || projs.size() <= 0) {
+				log.info("****** DJServiceImpl addDJData: projs == null || projs.size() <= 0 ******");
+				return false;
+			}
+			System.out.println(JSON.toJSON(projs));
+			// 先存项目数据
+			int num = djMapper.batchProjs(projs);
+			if (num <= 0) {
+				log.info("****** DJServiceImpl addDJData: num <= 0 ******");
+				return false;
+			}
+			log.info("****** addDJData djMapper.batchProjs Num:" + num + " ******");
+			this.batchWorks();
+			this.batchResources();
+			this.batchAllots();
+			this.batchFrontTasks();
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error("addDJData Error", e);
+			return false;
+		}
+	} 
+
+	private int batchWorks() {
+		// 删除文件数据库里多出的数据，当文件编码一样时
+		// 1、获取所有的工作任务
+		List<DJTaskWork> allWorks = m_allWorks;
+		if (allWorks == null || allWorks.size() <= 0) {
+			return 0;
+		}
+		Iterator<DJTaskWork> itor = allWorks.iterator();
+		List<String> ids = new ArrayList<String>();
+		while (itor.hasNext()) {
+			DJTaskWork work = itor.next();
+			ids.add(work.getId());
+		}
+		// 2、先删除表里有，但是project里没有的任务数据
+		int num = djMapper.delNotInDJTaskWork(ids);
+		log.info("****** batchWorks djMapper.delNotInDJTaskWork Num: " + num + " ******");
+		// 3、然后更新或增加工作任务
+		num = djMapper.batchWorks(allWorks);
+		log.info("****** batchWorks djMapper.batchWorks Num: " + num + " ******");
+		return num;
+	}
+
+	private int batchAllots() {
+		List<DJTaskAllot> allots = m_allAllots;
+		if (allots == null || allots.size() <= 0) {
+			return 0;
+		}
+		Iterator<DJTaskAllot> itor = allots.iterator();
+		List<String> ids = new ArrayList<String>();
+		while (itor.hasNext()) {
+			DJTaskAllot allot = itor.next();
+			ids.add(allot.getId());
+		}
+		int num = djMapper.delNotInDJTaskAllot(ids);
+		log.info("****** batchWorks djMapper.delNotInDJTaskWork Num: " + num + " ******");
+		num = djMapper.batchAllots(allots);
+		log.info("****** batchWorks djMapper.batchAllots Num: " + num + " ******");
+		return num;
+	}
+
+	private int batchFrontTasks() {
+		List<DJFrontTask> fronts = m_allFronts;
+		if (fronts == null || fronts.size() <= 0) {
+			return 0;
+		}
+		Iterator<DJFrontTask> itor = fronts.iterator();
+		List<String> ids = new ArrayList<String>();
+		while (itor.hasNext()) {
+			DJFrontTask front = itor.next();
+			ids.add(front.getId());
+		}
+		int num = djMapper.delNotInDJFrontTask(ids);
+		log.info("****** batchWorks djMapper.delNotInDJFrontTask Num: " + num + " ******");
+		num = djMapper.batchFrontTasks(fronts);
+		log.info("****** batchWorks djMapper.batchFrontTasks Num: " + num + " ******");
+		return num;
+	}
+
+	private int batchResources() {
+		List<DJResource> resources = m_allResources;
+		if (resources == null || resources.size() <= 0) {
+			return 0;
+		}
+		Iterator<DJResource> itor = resources.iterator();
+		List<String> ids = new ArrayList<String>();
+		while (itor.hasNext()) {
+			DJResource res = itor.next();
+			ids.add(res.getId());
+		}
+		int num = djMapper.batchResources(resources);
+		log.info("****** batchWorks djMapper.batchResources Num: " + num + " ******");
+		return num;
+	}
+
+	@Override
+	public DJData readDJMpp(String path, Long svnLastVersion) {
+		try {
+			MPPReader reader = new MPPReader();
+			File file = new File(path);
+			if (!this.isValidFile(file)) {
+				log.info("****** 文件名不合格，无法生成项目和任务 ******");
+				return null;
+			}
+			DJData data = new DJData();
+			ProjectFile pFile = reader.read(file);
+			TaskContainer tasks = pFile.getTasks();
+			Iterator<Task> iter = tasks.iterator();
+			List<DJProject> projs = new ArrayList<DJProject>();
+			this.m_fileName = file.getName();
+			this.m_svnLastVersion = svnLastVersion;
+			while (iter.hasNext()) {
+				Task t = iter.next();
+				String wbs = t.getWBS();
+				if (wbs.equals("0")) {
+					continue;
+				}
+				String[] wbss = wbs.split("\\.");
+				if (wbss.length == 1) {
+					m_currProj = this.getDJProject(t);
+					projs.add(m_currProj);
+				}
+				if (m_currProj == null) {
+					continue;
+				}
+				m_currProj.getWorks().add(this.getDJTaskWorks(t));
+				m_currProj.getAllots().addAll(this.getDJTaskAllots(t));
+				m_currProj.getFrontTasks().addAll(this.getDJFrontTasks(t));
+			}
+			data.setResources(this.getDJResources(pFile));
+			data.setProjs(projs);
+			return data;
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error("****** DJServiceImpl readDJMpp Error******", e);
+			return null;
+		}
+	}
+
+	private DJProject getDJProject(Task task) {
+		DJProject proj = new DJProject();
+		Date date = new Date();
+		proj.setId(UUIDLong.longUUID());
+		proj.setState(1);
+		proj.setStartMemberId("-3460681580974618312");// 道具发起人
+		proj.setStartDate(date);
+		proj.setApproveDate(date);
+		proj.setModifyMemberId("-3460681580974618312");
+		proj.setModifyDate(date);
+
+		proj.setProjectId(this.getProjectId(task));
+		proj.setProjectName(task.getName());
+		proj.setProjectIndustry("8165314299605700514");// 其他行业
+		proj.setPlanStartDate(task.getStart());
+		proj.setPlanFinishDate(task.getFinish());
+		proj.setProjectStage("5727642710514615250");
+		proj.setSalePrincipal(task.getContact());
+		proj.setSalePrincipalCompay("-3268367510365057894");// 新千里首饰道具包装公司
+		proj.setMainDutyCompanyId("fz011");
+		proj.setProjectBelongToCompanyId("fz011");
+		proj.setProjectBelongToCompanyName("新千里首饰道具包装公司");
+		proj.setAuthDeptCode("fz011");
+		proj.setAuthDeptId("-3268367510365057894");
+		proj.setEmpCode("道具");
+		proj.setCustomerId(task.getText(7));
+		proj.setMainContact(task.getText(8));
+		proj.setMainContactPhone(task.getText(9));
+		proj.setProvince(task.getText(6));
+		proj.setCost1(task.getCost(1).doubleValue());
+		proj.setCost2(task.getCost(2).doubleValue());
+		proj.setCost3(task.getCost(3).doubleValue());
+		if (m_fileName.contains("测试")) {// 测试数据
+			proj.setDataNature("-2501477783932944247");
+		} else {
+			proj.setDataNature("6811984181973109103");
+		}
+		return proj;
+	}
+
+	private DJTaskWork getDJTaskWorks(Task task) {
+		Task t = task;
+		String projectId = m_currProj.getProjectId();
+		DJTaskWork work = new DJTaskWork();
+		work.setId(DigestUtils.md5DigestAsHex((m_fileName + projectId + t.getGUID()).getBytes()));
+		work.setYearMonth(m_yearMonth);
+		work.setFileName(m_fileName);
+		work.setGuid(t.getGUID().toString());
+		work.setTag(t.getID());
+		work.setUniqueId(t.getUniqueID());
+		work.setWbs(t.getWBS());
+		work.setModel(t.getTaskMode().getValue() + "");
+		work.setName(t.getName());
+		work.setContact(t.getContact());
+		work.setStartDate(t.getStart());
+		work.setFinishDate(t.getFinish());
+		work.setActive(t.getActive() ? 1 : 0);
+		if (t.getParentTask() != null) {
+			work.setSuperiorTaskId(
+					DigestUtils.md5DigestAsHex((m_fileName + projectId + t.getParentTask().getGUID()).getBytes()));
+		}
+		if (t.getCalendar() != null) {
+			work.setCalendarUniqueId(t.getCalendar().getUniqueID());
+			work.setCalendarName(t.getCalendar().getName());
+		}
+		work.setPriority(t.getPriority().getValue());
+		work.setCreateDate(t.getCreateDate());
+		work.setText1(t.getText(1));
+		work.setText2(t.getText(2));
+		work.setText3(t.getText(3));
+		work.setText4(t.getText(4));
+		work.setText5(t.getText(5));
+		work.setText6(t.getText(6));
+		work.setText7(t.getText(7));
+		work.setText8(t.getText(8));
+		work.setText9(t.getText(9));
+		work.setText10(t.getText(10));
+		work.setText11(t.getText(11));
+		work.setText14(projectId);
+		work.setDate1(t.getDate(1));
+		work.setCost1(m_currProj.getCost1());
+		work.setCost2(m_currProj.getCost2());
+		work.setCost3(m_currProj.getCost3());
+		work.setNumber1(t.getNumber(1).doubleValue());
+		List<ResourceAssignment> ras = t.getResourceAssignments();
+		String resourceNames = "";
+		for (int j = 0; j < ras.size(); j++) {
+			ResourceAssignment ra = ras.get(j);
+			if (ra.getResource() != null && ra.getResource().getCode() != null
+					&& !ra.getResource().getCode().equals("")) {
+				resourceNames += ra.getResource().getName();
+				resourceNames += ",";
+			}
+		}
+		if (resourceNames.length() > 0) {
+			resourceNames = resourceNames.substring(0, resourceNames.length() - 1);
+		} else {
+			resourceNames = null;
+		}
+		work.setResourceNames(resourceNames);
+		work.setFileCode(DigestUtils.md5DigestAsHex(m_fileName.getBytes()));
+		work.setSvnLastVersion(m_svnLastVersion);
+		m_allWorks.add(work);
+		return work;
+	}
+
+	private List<DJTaskAllot> getDJTaskAllots(Task task) {
+		Task t = task;
+		String projectId = m_currProj.getProjectId();
+		List<DJTaskAllot> allots = new ArrayList<DJTaskAllot>();
+		List<ResourceAssignment> resourceAssignments = t.getResourceAssignments();
+		if (resourceAssignments == null || resourceAssignments.size() <= 0) {
+			return allots;
+		}
+		List<String> reses = new ArrayList<String>();
+		for (int i = 0; i < resourceAssignments.size(); i++) {
+			ResourceAssignment ra = resourceAssignments.get(i);
+			if (ra.getResource() == null || ra.getResource().getCode() == null
+					|| ra.getResource().getCode().equals("")) {
+				continue;
+			}
+			String resId = DigestUtils.md5DigestAsHex((ra.getResource().getUniqueID().toString()).getBytes());
+			String taskId = DigestUtils.md5DigestAsHex((m_fileName + projectId + ra.getTask().getGUID()).getBytes());
+			String str = taskId + resId;
+			if (reses.contains(str)) {
+				continue;
+			}
+			reses.add(str);
+			DJTaskAllot allot = new DJTaskAllot();
+			allot.setId(DigestUtils.md5DigestAsHex(str.getBytes()));
+			allot.setTaskId(taskId);
+			allot.setResId(resId);
+			allot.setUnits(ra.getUnits().doubleValue());
+			allot.setWork(ra.getWork().getDuration());
+			allot.setStartDate(ra.getStart());
+			allot.setFinishDate(ra.getFinish());
+			allot.setActualStart(ra.getActualStart());
+			allot.setActualFinish(ra.getActualFinish());
+			allot.setCostRateTable(ra.getCostRateTableIndex() + "");
+			allot.setCost(ra.getCost().doubleValue());
+			allot.setFileCode(DigestUtils.md5DigestAsHex(m_fileName.getBytes()));
+			allot.setSvnLastVersion(m_svnLastVersion);
+			allots.add(allot);
+			m_allAllots.add(allot);
+		}
+		return allots;
+	}
+
+	private List<DJFrontTask> getDJFrontTasks(Task task) {
+		Task t = task;
+		String projectId = m_currProj.getProjectId();
+		List<DJFrontTask> tasks = new ArrayList<DJFrontTask>();
+		List<Relation> predecessors = t.getPredecessors();
+		if (predecessors != null && predecessors.size() > 0) {
+			Iterator<Relation> iterator = predecessors.iterator();
+			while (iterator.hasNext()) {
+				Relation r = (Relation) iterator.next();
+				DJFrontTask ft = new DJFrontTask();
+				Task st = r.getSourceTask();
+				Task ct = r.getTargetTask();// 前置任务
+				String taskId = DigestUtils.md5DigestAsHex((m_fileName + projectId + st.getGUID()).getBytes());
+				String frontTaskId = DigestUtils.md5DigestAsHex((m_fileName + projectId + ct.getGUID()).getBytes());
+				ft.setId(DigestUtils.md5DigestAsHex((taskId + frontTaskId).getBytes()));
+				ft.setType(r.getType().name());
+				ft.setTaskId(taskId);
+				ft.setFrontTaskId(frontTaskId);
+				ft.setDelayTime(r.getLag().getDuration());
+				ft.setFileCode(DigestUtils.md5DigestAsHex(m_fileName.getBytes()));
+				ft.setSvnLastVersion(m_svnLastVersion);
+				tasks.add(ft);
+				m_allFronts.add(ft);
+			}
+		}
+		return tasks;
+	}
+
+	private List<DJResource> getDJResources(ProjectFile pFile) {
+		if (pFile == null) {
+			return new ArrayList<DJResource>();
+		}
+		List<DJResource> ress = new ArrayList<DJResource>();
+		ResourceContainer resources = pFile.getResources();
+		Iterator<Resource> iterator = resources.iterator();
+		while (iterator.hasNext()) {
+			Resource r = iterator.next();
+			if (r.getCode() == null || r.getCode().equals("")) {
+				continue;
+			}
+			DJResource res = new DJResource();
+			res.setId(DigestUtils.md5DigestAsHex((r.getUniqueID().toString()).getBytes()));
+			res.setGuid(r.getGUID().toString());
+			res.setResId(r.getID());
+			res.setUniqueId(r.getUniqueID());
+			res.setType(r.getType().getValue() + "");
+			res.setName(r.getName());
+			res.setResGroup(r.getGroup());
+			res.setMaterialLabel(r.getMaterialLabel());
+			res.setInitials(r.getInitials());
+			res.setMaxUnits(r.getMaxUnits().doubleValue());
+			res.setCode(r.getCode());
+			res.setNotes(r.getNotes());
+			res.setOvertimeRate(r.getOvertimeRate().getAmount());
+			res.setStandardRate(r.getStandardRate().getAmount());
+			res.setCostPerUse(r.getCostPerUse().doubleValue());
+			res.setCreateDate(r.getCreationDate());
+			res.setActive(r.getActive() ? 1 : 0);
+			if (r.getResourceCalendar() != null) {
+				res.setCalendarUniqueId(r.getResourceCalendar().getUniqueID());
+			}
+			res.setFileCode(DigestUtils.md5DigestAsHex(m_fileName.getBytes()));
+			res.setSvnLastVersion(m_svnLastVersion);
+			ress.add(res);
+			m_allResources.add(res);
+		}
+		return ress;
+	}
+
+	private String getProjectId(Task task) {
+		Task t = task;
+		int uniqueId = t.getUniqueID();
+		String strUniqueId = "";
+		if (uniqueId < 10) {
+			strUniqueId = "000" + uniqueId;
+		} else if (uniqueId < 100) {
+			strUniqueId = "00" + uniqueId;
+		} else if (uniqueId < 1000) {
+			strUniqueId = "0" + uniqueId;
+		} else if (uniqueId < 10000) {
+			strUniqueId = "" + uniqueId;
+		} else {
+			strUniqueId = "0000";
+		}
+		StringBuilder sb = new StringBuilder("DJ");
+		sb.append(DateHelper.getStrDateFormat(t.getCreateDate(), "yyMM"));
+		sb.append(strUniqueId);
+		return sb.toString();
+	}
+
+	private boolean isValidFile(File file) {
+		if (file == null) {
+			return false;
+		}
+		String fileName = file.getName();
+		String[] names = fileName.split("-");
+		if (names == null || names.length <= 0) {
+			return false;
+		}
+		String yearMonth = names[0];
+		if (!DataHelper.isInteger(yearMonth)) {
+			return false;
+		}
+		m_yearMonth = yearMonth;
+		return yearMonth.length() == 6;
+	}
+
+	@Override
+	public boolean saveData(String path, Long svnLastVersion) {
+		if (this.addDJData(path, svnLastVersion)) {
+			String res = djMapper.generatorTask(DigestUtils.md5DigestAsHex(m_fileName.getBytes()));
+			log.info("****** generatorTask res: " + res + " ******");
+			return true;
+		}
+		return false;
+	}
+
+}

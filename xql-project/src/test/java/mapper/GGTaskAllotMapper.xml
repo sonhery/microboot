@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.GGTaskAllotMapper">
+  <resultMap id="BaseResultMap" type="model.GGTaskAllot">
+    <id column="ID" jdbcType="VARCHAR" property="id" />
+    <result column="TASK_ID" jdbcType="VARCHAR" property="taskId" />
+    <result column="RES_ID" jdbcType="VARCHAR" property="resId" />
+    <result column="UNITS" jdbcType="DECIMAL" property="units" />
+    <result column="WORK" jdbcType="DECIMAL" property="work" />
+    <result column="START_DATE" jdbcType="TIMESTAMP" property="startDate" />
+    <result column="FINISH_DATE" jdbcType="TIMESTAMP" property="finishDate" />
+    <result column="ACTUAL_START" jdbcType="TIMESTAMP" property="actualStart" />
+    <result column="ACTUAL_FINISH" jdbcType="TIMESTAMP" property="actualFinish" />
+    <result column="COST_RATE_TABLE" jdbcType="VARCHAR" property="costRateTable" />
+    <result column="COST" jdbcType="DECIMAL" property="cost" />
+    <result column="FILE_CODE" jdbcType="VARCHAR" property="fileCode" />
+    <result column="SVN_LAST_VERSION" jdbcType="DECIMAL" property="svnLastVersion" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    ID, TASK_ID, RES_ID, UNITS, "WORK", START_DATE, FINISH_DATE, ACTUAL_START, ACTUAL_FINISH, 
+    COST_RATE_TABLE, COST, FILE_CODE, SVN_LAST_VERSION
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from GG_TASK_ALLOT
+    where ID = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from GG_TASK_ALLOT
+    where ID = #{id,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="model.GGTaskAllot">
+    insert into GG_TASK_ALLOT (ID, TASK_ID, RES_ID, 
+      UNITS, "WORK", START_DATE, 
+      FINISH_DATE, ACTUAL_START, ACTUAL_FINISH, 
+      COST_RATE_TABLE, COST, FILE_CODE, 
+      SVN_LAST_VERSION)
+    values (#{id,jdbcType=VARCHAR}, #{taskId,jdbcType=VARCHAR}, #{resId,jdbcType=VARCHAR}, 
+      #{units,jdbcType=DECIMAL}, #{work,jdbcType=DECIMAL}, #{startDate,jdbcType=TIMESTAMP}, 
+      #{finishDate,jdbcType=TIMESTAMP}, #{actualStart,jdbcType=TIMESTAMP}, #{actualFinish,jdbcType=TIMESTAMP}, 
+      #{costRateTable,jdbcType=VARCHAR}, #{cost,jdbcType=DECIMAL}, #{fileCode,jdbcType=VARCHAR}, 
+      #{svnLastVersion,jdbcType=DECIMAL})
+  </insert>
+  <insert id="insertSelective" parameterType="model.GGTaskAllot">
+    insert into GG_TASK_ALLOT
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        ID,
+      </if>
+      <if test="taskId != null">
+        TASK_ID,
+      </if>
+      <if test="resId != null">
+        RES_ID,
+      </if>
+      <if test="units != null">
+        UNITS,
+      </if>
+      <if test="work != null">
+        "WORK",
+      </if>
+      <if test="startDate != null">
+        START_DATE,
+      </if>
+      <if test="finishDate != null">
+        FINISH_DATE,
+      </if>
+      <if test="actualStart != null">
+        ACTUAL_START,
+      </if>
+      <if test="actualFinish != null">
+        ACTUAL_FINISH,
+      </if>
+      <if test="costRateTable != null">
+        COST_RATE_TABLE,
+      </if>
+      <if test="cost != null">
+        COST,
+      </if>
+      <if test="fileCode != null">
+        FILE_CODE,
+      </if>
+      <if test="svnLastVersion != null">
+        SVN_LAST_VERSION,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="taskId != null">
+        #{taskId,jdbcType=VARCHAR},
+      </if>
+      <if test="resId != null">
+        #{resId,jdbcType=VARCHAR},
+      </if>
+      <if test="units != null">
+        #{units,jdbcType=DECIMAL},
+      </if>
+      <if test="work != null">
+        #{work,jdbcType=DECIMAL},
+      </if>
+      <if test="startDate != null">
+        #{startDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="finishDate != null">
+        #{finishDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="actualStart != null">
+        #{actualStart,jdbcType=TIMESTAMP},
+      </if>
+      <if test="actualFinish != null">
+        #{actualFinish,jdbcType=TIMESTAMP},
+      </if>
+      <if test="costRateTable != null">
+        #{costRateTable,jdbcType=VARCHAR},
+      </if>
+      <if test="cost != null">
+        #{cost,jdbcType=DECIMAL},
+      </if>
+      <if test="fileCode != null">
+        #{fileCode,jdbcType=VARCHAR},
+      </if>
+      <if test="svnLastVersion != null">
+        #{svnLastVersion,jdbcType=DECIMAL},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="model.GGTaskAllot">
+    update GG_TASK_ALLOT
+    <set>
+      <if test="taskId != null">
+        TASK_ID = #{taskId,jdbcType=VARCHAR},
+      </if>
+      <if test="resId != null">
+        RES_ID = #{resId,jdbcType=VARCHAR},
+      </if>
+      <if test="units != null">
+        UNITS = #{units,jdbcType=DECIMAL},
+      </if>
+      <if test="work != null">
+        "WORK" = #{work,jdbcType=DECIMAL},
+      </if>
+      <if test="startDate != null">
+        START_DATE = #{startDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="finishDate != null">
+        FINISH_DATE = #{finishDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="actualStart != null">
+        ACTUAL_START = #{actualStart,jdbcType=TIMESTAMP},
+      </if>
+      <if test="actualFinish != null">
+        ACTUAL_FINISH = #{actualFinish,jdbcType=TIMESTAMP},
+      </if>
+      <if test="costRateTable != null">
+        COST_RATE_TABLE = #{costRateTable,jdbcType=VARCHAR},
+      </if>
+      <if test="cost != null">
+        COST = #{cost,jdbcType=DECIMAL},
+      </if>
+      <if test="fileCode != null">
+        FILE_CODE = #{fileCode,jdbcType=VARCHAR},
+      </if>
+      <if test="svnLastVersion != null">
+        SVN_LAST_VERSION = #{svnLastVersion,jdbcType=DECIMAL},
+      </if>
+    </set>
+    where ID = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="model.GGTaskAllot">
+    update GG_TASK_ALLOT
+    set TASK_ID = #{taskId,jdbcType=VARCHAR},
+      RES_ID = #{resId,jdbcType=VARCHAR},
+      UNITS = #{units,jdbcType=DECIMAL},
+      "WORK" = #{work,jdbcType=DECIMAL},
+      START_DATE = #{startDate,jdbcType=TIMESTAMP},
+      FINISH_DATE = #{finishDate,jdbcType=TIMESTAMP},
+      ACTUAL_START = #{actualStart,jdbcType=TIMESTAMP},
+      ACTUAL_FINISH = #{actualFinish,jdbcType=TIMESTAMP},
+      COST_RATE_TABLE = #{costRateTable,jdbcType=VARCHAR},
+      COST = #{cost,jdbcType=DECIMAL},
+      FILE_CODE = #{fileCode,jdbcType=VARCHAR},
+      SVN_LAST_VERSION = #{svnLastVersion,jdbcType=DECIMAL}
+    where ID = #{id,jdbcType=VARCHAR}
+  </update>
+</mapper>

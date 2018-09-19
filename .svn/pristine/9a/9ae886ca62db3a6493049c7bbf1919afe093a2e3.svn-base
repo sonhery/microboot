@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.DJResourceMapper">
+  <resultMap id="BaseResultMap" type="model.DJResource">
+    <id column="ID" jdbcType="VARCHAR" property="id" />
+    <result column="GUID" jdbcType="VARCHAR" property="guid" />
+    <result column="RES_ID" jdbcType="DECIMAL" property="resId" />
+    <result column="UNIQUE_ID" jdbcType="DECIMAL" property="uniqueId" />
+    <result column="TYPE" jdbcType="VARCHAR" property="type" />
+    <result column="NAME" jdbcType="VARCHAR" property="name" />
+    <result column="GROUP" jdbcType="VARCHAR" property="group" />
+    <result column="MATERIAL_LABEL" jdbcType="VARCHAR" property="materialLabel" />
+    <result column="INITIALS" jdbcType="VARCHAR" property="initials" />
+    <result column="MAX_UNITS " jdbcType="DECIMAL" property="maxUnits" />
+    <result column="CODE" jdbcType="VARCHAR" property="code" />
+    <result column="NOTES" jdbcType="VARCHAR" property="notes" />
+    <result column="STANDARD_RATE" jdbcType="DECIMAL" property="standardRate" />
+    <result column="OVERTIME_RATE" jdbcType="DECIMAL" property="overtimeRate" />
+    <result column="COST_PER_USE" jdbcType="DECIMAL" property="costPerUse" />
+    <result column="CREATE_DATE" jdbcType="TIMESTAMP" property="createDate" />
+    <result column="ACTIVE" jdbcType="DECIMAL" property="active" />
+    <result column="CALENDAR_UNIQUE_ID" jdbcType="DECIMAL" property="calendarUniqueId" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    ID, GUID, RES_ID, UNIQUE_ID, "TYPE", "NAME", "GROUP", MATERIAL_LABEL, INITIALS, "MAX_UNITS ", 
+    CODE, NOTES, STANDARD_RATE, OVERTIME_RATE, COST_PER_USE, CREATE_DATE, ACTIVE, CALENDAR_UNIQUE_ID
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from DJ_RESOURCE
+    where ID = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from DJ_RESOURCE
+    where ID = #{id,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="model.DJResource">
+    insert into DJ_RESOURCE (ID, GUID, RES_ID, 
+      UNIQUE_ID, "TYPE", "NAME", 
+      "GROUP", MATERIAL_LABEL, INITIALS, 
+      "MAX_UNITS ", CODE, NOTES, 
+      STANDARD_RATE, OVERTIME_RATE, COST_PER_USE, 
+      CREATE_DATE, ACTIVE, CALENDAR_UNIQUE_ID
+      )
+    values (#{id,jdbcType=VARCHAR}, #{guid,jdbcType=VARCHAR}, #{resId,jdbcType=DECIMAL}, 
+      #{uniqueId,jdbcType=DECIMAL}, #{type,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
+      #{group,jdbcType=VARCHAR}, #{materialLabel,jdbcType=VARCHAR}, #{initials,jdbcType=VARCHAR}, 
+      #{maxUnits,jdbcType=DECIMAL}, #{code,jdbcType=VARCHAR}, #{notes,jdbcType=VARCHAR}, 
+      #{standardRate,jdbcType=DECIMAL}, #{overtimeRate,jdbcType=DECIMAL}, #{costPerUse,jdbcType=DECIMAL}, 
+      #{createDate,jdbcType=TIMESTAMP}, #{active,jdbcType=DECIMAL}, #{calendarUniqueId,jdbcType=DECIMAL}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="model.DJResource">
+    insert into DJ_RESOURCE
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        ID,
+      </if>
+      <if test="guid != null">
+        GUID,
+      </if>
+      <if test="resId != null">
+        RES_ID,
+      </if>
+      <if test="uniqueId != null">
+        UNIQUE_ID,
+      </if>
+      <if test="type != null">
+        "TYPE",
+      </if>
+      <if test="name != null">
+        "NAME",
+      </if>
+      <if test="group != null">
+        "GROUP",
+      </if>
+      <if test="materialLabel != null">
+        MATERIAL_LABEL,
+      </if>
+      <if test="initials != null">
+        INITIALS,
+      </if>
+      <if test="maxUnits != null">
+        "MAX_UNITS ",
+      </if>
+      <if test="code != null">
+        CODE,
+      </if>
+      <if test="notes != null">
+        NOTES,
+      </if>
+      <if test="standardRate != null">
+        STANDARD_RATE,
+      </if>
+      <if test="overtimeRate != null">
+        OVERTIME_RATE,
+      </if>
+      <if test="costPerUse != null">
+        COST_PER_USE,
+      </if>
+      <if test="createDate != null">
+        CREATE_DATE,
+      </if>
+      <if test="active != null">
+        ACTIVE,
+      </if>
+      <if test="calendarUniqueId != null">
+        CALENDAR_UNIQUE_ID,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="guid != null">
+        #{guid,jdbcType=VARCHAR},
+      </if>
+      <if test="resId != null">
+        #{resId,jdbcType=DECIMAL},
+      </if>
+      <if test="uniqueId != null">
+        #{uniqueId,jdbcType=DECIMAL},
+      </if>
+      <if test="type != null">
+        #{type,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="group != null">
+        #{group,jdbcType=VARCHAR},
+      </if>
+      <if test="materialLabel != null">
+        #{materialLabel,jdbcType=VARCHAR},
+      </if>
+      <if test="initials != null">
+        #{initials,jdbcType=VARCHAR},
+      </if>
+      <if test="maxUnits != null">
+        #{maxUnits,jdbcType=DECIMAL},
+      </if>
+      <if test="code != null">
+        #{code,jdbcType=VARCHAR},
+      </if>
+      <if test="notes != null">
+        #{notes,jdbcType=VARCHAR},
+      </if>
+      <if test="standardRate != null">
+        #{standardRate,jdbcType=DECIMAL},
+      </if>
+      <if test="overtimeRate != null">
+        #{overtimeRate,jdbcType=DECIMAL},
+      </if>
+      <if test="costPerUse != null">
+        #{costPerUse,jdbcType=DECIMAL},
+      </if>
+      <if test="createDate != null">
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="active != null">
+        #{active,jdbcType=DECIMAL},
+      </if>
+      <if test="calendarUniqueId != null">
+        #{calendarUniqueId,jdbcType=DECIMAL},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="model.DJResource">
+    update DJ_RESOURCE
+    <set>
+      <if test="guid != null">
+        GUID = #{guid,jdbcType=VARCHAR},
+      </if>
+      <if test="resId != null">
+        RES_ID = #{resId,jdbcType=DECIMAL},
+      </if>
+      <if test="uniqueId != null">
+        UNIQUE_ID = #{uniqueId,jdbcType=DECIMAL},
+      </if>
+      <if test="type != null">
+        "TYPE" = #{type,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        "NAME" = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="group != null">
+        "GROUP" = #{group,jdbcType=VARCHAR},
+      </if>
+      <if test="materialLabel != null">
+        MATERIAL_LABEL = #{materialLabel,jdbcType=VARCHAR},
+      </if>
+      <if test="initials != null">
+        INITIALS = #{initials,jdbcType=VARCHAR},
+      </if>
+      <if test="maxUnits != null">
+        "MAX_UNITS " = #{maxUnits,jdbcType=DECIMAL},
+      </if>
+      <if test="code != null">
+        CODE = #{code,jdbcType=VARCHAR},
+      </if>
+      <if test="notes != null">
+        NOTES = #{notes,jdbcType=VARCHAR},
+      </if>
+      <if test="standardRate != null">
+        STANDARD_RATE = #{standardRate,jdbcType=DECIMAL},
+      </if>
+      <if test="overtimeRate != null">
+        OVERTIME_RATE = #{overtimeRate,jdbcType=DECIMAL},
+      </if>
+      <if test="costPerUse != null">
+        COST_PER_USE = #{costPerUse,jdbcType=DECIMAL},
+      </if>
+      <if test="createDate != null">
+        CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="active != null">
+        ACTIVE = #{active,jdbcType=DECIMAL},
+      </if>
+      <if test="calendarUniqueId != null">
+        CALENDAR_UNIQUE_ID = #{calendarUniqueId,jdbcType=DECIMAL},
+      </if>
+    </set>
+    where ID = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="model.DJResource">
+    update DJ_RESOURCE
+    set GUID = #{guid,jdbcType=VARCHAR},
+      RES_ID = #{resId,jdbcType=DECIMAL},
+      UNIQUE_ID = #{uniqueId,jdbcType=DECIMAL},
+      "TYPE" = #{type,jdbcType=VARCHAR},
+      "NAME" = #{name,jdbcType=VARCHAR},
+      "GROUP" = #{group,jdbcType=VARCHAR},
+      MATERIAL_LABEL = #{materialLabel,jdbcType=VARCHAR},
+      INITIALS = #{initials,jdbcType=VARCHAR},
+      "MAX_UNITS " = #{maxUnits,jdbcType=DECIMAL},
+      CODE = #{code,jdbcType=VARCHAR},
+      NOTES = #{notes,jdbcType=VARCHAR},
+      STANDARD_RATE = #{standardRate,jdbcType=DECIMAL},
+      OVERTIME_RATE = #{overtimeRate,jdbcType=DECIMAL},
+      COST_PER_USE = #{costPerUse,jdbcType=DECIMAL},
+      CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      ACTIVE = #{active,jdbcType=DECIMAL},
+      CALENDAR_UNIQUE_ID = #{calendarUniqueId,jdbcType=DECIMAL}
+    where ID = #{id,jdbcType=VARCHAR}
+  </update>
+</mapper>

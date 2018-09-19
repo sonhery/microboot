@@ -1,0 +1,532 @@
+package com.dee.xql.proj.service.impl;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.DigestUtils;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.dee.xql.api.constants.Constants;
+import com.dee.xql.api.model.LampsData;
+import com.dee.xql.api.model.LampsFrontTask;
+import com.dee.xql.api.model.LampsProject;
+import com.dee.xql.api.model.LampsResource;
+import com.dee.xql.api.model.LampsTaskAllot;
+import com.dee.xql.api.model.LampsTaskWork;
+import com.dee.xql.api.model.LampsWriteData;
+import com.dee.xql.api.model.SAPGoods;
+import com.dee.xql.api.utils.DataHelper;
+import com.dee.xql.api.utils.DateHelper;
+import com.dee.xql.api.utils.FileHelper;
+import com.dee.xql.api.utils.SVNHelper;
+import com.dee.xql.api.utils.UUIDLong;
+import com.dee.xql.proj.config.CommonsConfig;
+import com.dee.xql.proj.dao.LampsMapper;
+import com.dee.xql.proj.service.LampsService;
+import com.dee.xql.proj.uitls.JacobHelper;
+
+import lombok.extern.slf4j.Slf4j;
+import net.sf.mpxj.ProjectFile;
+import net.sf.mpxj.Relation;
+import net.sf.mpxj.Resource;
+import net.sf.mpxj.ResourceAssignment;
+import net.sf.mpxj.ResourceContainer;
+import net.sf.mpxj.Task;
+import net.sf.mpxj.TaskContainer;
+import net.sf.mpxj.mpp.MPPReader;
+
+@Slf4j
+@Service
+public class LampsServiceImpl implements LampsService {
+
+	protected String m_fileName;
+	protected Long m_svnLastVersion;
+	protected String m_yearMonth;
+	protected LampsProject m_currProj;
+	protected List<LampsTaskWork> m_allWorks;
+	protected List<LampsTaskAllot> m_allAllots;
+	protected List<LampsFrontTask> m_allFronts;
+	protected List<LampsResource> m_allResources;
+
+	@Autowired
+	private LampsMapper lampsMapper;
+	@Autowired
+	private CommonsConfig commonsConfig;
+	@Autowired
+	private JacobHelper jacobHelper;
+
+	@Transactional(rollbackFor = Exception.class)
+	@Override
+	public boolean addLampsData(String path, Long svnLastVersion) {
+		try {
+			m_allWorks = new ArrayList<LampsTaskWork>();
+			m_allAllots = new ArrayList<LampsTaskAllot>();
+			m_allFronts = new ArrayList<LampsFrontTask>();
+			m_allResources = new ArrayList<LampsResource>();
+			LampsData data = this.readLampsMpp(path, svnLastVersion);
+			if (data == null) {
+				log.info("****** LampsServiceImpl addLampsData: data == null ******");
+				return false;
+			}
+			List<LampsProject> projs = data.getProjs();
+			if (projs == null || projs.size() <= 0) {
+				log.info("****** LampsServiceImpl addLampsData: projs == null || projs.size() <= 0 ******");
+				return false;
+			}
+			System.out.println(JSON.toJSON(projs));
+			// 先存项目数据
+			int num = lampsMapper.batchProjs(projs);
+			if (num <= 0) {
+				log.info("****** LampsServiceImpl addLampsData: num <= 0 ******");
+				return false;
+			}
+			log.info("****** addLampsData lampsMapper.batchProjs Num:" + num + " ******");
+			this.batchWorks();
+			this.batchResources();
+			this.batchAllots();
+			this.batchFrontTasks();
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error("addLampsData Error", e);
+			return false;
+		}
+	}
+
+	private int batchWorks() {
+		// 删除文件数据库里多出的数据，当文件编码一样时
+		// 1、获取所有的工作任务
+		List<LampsTaskWork> allWorks = m_allWorks;
+		if (allWorks == null || allWorks.size() <= 0) {
+			return 0;
+		}
+		Iterator<LampsTaskWork> itor = allWorks.iterator();
+		List<String> ids = new ArrayList<String>();
+		while (itor.hasNext()) {
+			LampsTaskWork work = itor.next();
+			ids.add(work.getId());
+		}
+		// 2、先删除表里有，但是project里没有的任务数据
+		int num = lampsMapper.delNotInLampsTaskWork(ids);
+		log.info("****** batchWorks lampsMapper.delNotInLampsTaskWork Num: " + num + " ******");
+		// 3、然后更新或增加工作任务
+		num = lampsMapper.batchWorks(allWorks);
+		log.info("****** batchWorks lampsMapper.batchWorks Num: " + num + " ******");
+		return num;
+	}
+
+	private int batchAllots() {
+		List<LampsTaskAllot> allots = m_allAllots;
+		if (allots == null || allots.size() <= 0) {
+			return 0;
+		}
+		Iterator<LampsTaskAllot> itor = allots.iterator();
+		List<String> ids = new ArrayList<String>();
+		while (itor.hasNext()) {
+			LampsTaskAllot allot = itor.next();
+			ids.add(allot.getId());
+		}
+		int num = lampsMapper.delNotInLampsTaskAllot(ids);
+		log.info("****** batchWorks lampsMapper.delNotInLampsTaskWork Num: " + num + " ******");
+		num = lampsMapper.batchAllots(allots);
+		log.info("****** batchWorks lampsMapper.batchAllots Num: " + num + " ******");
+		return num;
+	}
+
+	private int batchFrontTasks() {
+		List<LampsFrontTask> fronts = m_allFronts;
+		if (fronts == null || fronts.size() <= 0) {
+			return 0;
+		}
+		Iterator<LampsFrontTask> itor = fronts.iterator();
+		List<String> ids = new ArrayList<String>();
+		while (itor.hasNext()) {
+			LampsFrontTask front = itor.next();
+			ids.add(front.getId());
+		}
+		int num = lampsMapper.delNotInLampsFrontTask(ids);
+		log.info("****** batchWorks lampsMapper.delNotInLampsFrontTask Num: " + num + " ******");
+		num = lampsMapper.batchFrontTasks(fronts);
+		log.info("****** batchWorks lampsMapper.batchFrontTasks Num: " + num + " ******");
+		return num;
+	}
+
+	private int batchResources() {
+		List<LampsResource> resources = m_allResources;
+		if (resources == null || resources.size() <= 0) {
+			return 0;
+		}
+		Iterator<LampsResource> itor = resources.iterator();
+		List<String> ids = new ArrayList<String>();
+		while (itor.hasNext()) {
+			LampsResource res = itor.next();
+			ids.add(res.getId());
+		}
+		int num = lampsMapper.batchResources(resources);
+		log.info("****** batchWorks lampsMapper.batchResources Num: " + num + " ******");
+		return num;
+	}
+
+	@Override
+	public LampsData readLampsMpp(String path, Long svnLastVersion) {
+		try {
+			MPPReader reader = new MPPReader();
+			File file = new File(path);
+			if (!this.isValidFile(file)) {
+				log.info("****** 文件名不合格，无法生成项目和任务 ******");
+				return null;
+			}
+			LampsData data = new LampsData();
+			ProjectFile pFile = reader.read(file);
+			TaskContainer tasks = pFile.getTasks();
+			Iterator<Task> iter = tasks.iterator();
+			List<LampsProject> projs = new ArrayList<LampsProject>();
+			this.m_fileName = file.getName();
+			this.m_svnLastVersion = svnLastVersion;
+			while (iter.hasNext()) {
+				Task t = iter.next();
+				String wbs = t.getWBS();
+				if (wbs.equals("0")) {
+					continue;
+				}
+				String[] wbss = wbs.split("\\.");
+				if (wbss.length == 1) {
+					m_currProj = this.getLampsProject(t);
+					projs.add(m_currProj);
+				}
+				if (m_currProj == null) {
+					continue;
+				}
+				m_currProj.getWorks().add(this.getLampsTaskWorks(t));
+				m_currProj.getAllots().addAll(this.getLampsTaskAllots(t));
+				m_currProj.getFrontTasks().addAll(this.getLampsFrontTasks(t));
+			}
+			data.setResources(this.getLampsResources(pFile));
+			data.setProjs(projs);
+			return data;
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error("****** LampsServiceImpl readLampsMpp Error******", e);
+			return null;
+		}
+	}
+
+	private LampsProject getLampsProject(Task task) {
+		LampsProject proj = new LampsProject();
+		Date date = new Date();
+		proj.setId(UUIDLong.longUUID());
+		proj.setState(1);
+		proj.setStartMemberId("8071996974816969285");// 灯具发起人
+		proj.setStartDate(date);
+		proj.setApproveDate(date);
+		proj.setModifyMemberId("8071996974816969285");
+		proj.setModifyDate(date);
+
+		proj.setProjectId(this.getProjectId(task));
+		proj.setProjectName(task.getName());
+		proj.setProjectIndustry("8165314299605700514");// 其他行业
+		proj.setPlanStartDate(task.getStart());
+		proj.setPlanFinishDate(task.getFinish());
+		proj.setProjectStage("5727642710514615250");
+		proj.setSalePrincipal(task.getText(3));
+		proj.setSalePrincipalCompay("2930653882180324762");// 亚非欧灯具公司
+		proj.setMainDutyCompanyId("fz012");
+		proj.setProjectBelongToCompanyId("fz010");
+		proj.setProjectBelongToCompanyName("亚非欧灯具公司");
+		proj.setAuthDeptCode("fz010");
+		proj.setAuthDeptId("2930653882180324762");
+		proj.setEmpCode("灯具");
+		proj.setCustomerId(task.getText(7));
+		proj.setMainContact(task.getText(8));
+		proj.setMainContactPhone(task.getText(9));
+//		proj.setProvince(task.getText(6));
+		if (m_fileName.contains("测试")) {// 测试数据
+			proj.setDataNature("-2501477783932944247");
+		} else {
+			proj.setDataNature("6811984181973109103");
+		}
+		return proj;
+	}
+
+	private LampsTaskWork getLampsTaskWorks(Task task) {
+		Task t = task;
+		String projectId = m_currProj.getProjectId();
+		LampsTaskWork work = new LampsTaskWork();
+		work.setId(DigestUtils.md5DigestAsHex((m_fileName + projectId + t.getGUID()).getBytes()));
+		work.setYearMonth(m_yearMonth);
+		work.setFileName(m_fileName);
+		work.setGuid(t.getGUID().toString());
+		work.setTag(t.getID());
+		work.setUniqueId(t.getUniqueID());
+		work.setWbs(t.getWBS());
+		work.setModel(t.getTaskMode().getValue() + "");
+		work.setName(t.getName());
+		work.setContact(t.getContact());
+		work.setStartDate(t.getStart());
+		work.setFinishDate(t.getFinish());
+		work.setActualStart(t.getActualStart());
+		work.setActualFinish(t.getActualFinish());
+		work.setNotes(t.getNotes());
+		work.setActive(t.getActive() ? 1 : 0);
+		if (t.getParentTask() != null) {
+			work.setSuperiorTaskId(
+					DigestUtils.md5DigestAsHex((m_fileName + projectId + t.getParentTask().getGUID()).getBytes()));
+		}
+		if (t.getCalendar() != null) {
+			work.setCalendarUniqueId(t.getCalendar().getUniqueID());
+			work.setCalendarName(t.getCalendar().getName());
+		}
+		work.setPriority(t.getPriority().getValue());
+		work.setCreateDate(t.getCreateDate());
+		work.setCost(t.getCost().doubleValue());
+		work.setFlag1(t.getFlag(1) ? 1 : 0);
+		work.setText1(t.getText(1));
+		work.setText2(projectId);
+		work.setText3(t.getText(3));
+		work.setText4(t.getText(4));
+		work.setText5(t.getText(5));
+		work.setText6(t.getText(6));
+		work.setText7(t.getText(7));
+		work.setText8(t.getText(8));
+		work.setText9(t.getText(9));
+		work.setText10(t.getText(10));
+		work.setDate1(t.getDate(1));
+		work.setDate2(t.getDate(2));
+		work.setNumber1(t.getNumber(1).doubleValue());
+		work.setFixedCost(t.getFixedCost().doubleValue());
+		work.setCost2(t.getCost(2).doubleValue());
+		List<ResourceAssignment> ras = t.getResourceAssignments();
+		String resourceNames = "";
+		for (int j = 0; j < ras.size(); j++) {
+			ResourceAssignment ra = ras.get(j);
+			if (ra.getResource() != null && ra.getResource().getCode() != null
+					&& !ra.getResource().getCode().equals("")) {
+				resourceNames += ra.getResource().getName();
+				resourceNames += ",";
+			}
+		}
+		if (resourceNames.length() > 0) {
+			resourceNames = resourceNames.substring(0, resourceNames.length() - 1);
+		} else {
+			resourceNames = null;
+		}
+		work.setResourceNames(resourceNames);
+		work.setFileCode(DigestUtils.md5DigestAsHex(m_fileName.getBytes()));
+		work.setSvnLastVersion(m_svnLastVersion);
+		m_allWorks.add(work);
+		return work;
+	}
+
+	private List<LampsTaskAllot> getLampsTaskAllots(Task task) {
+		Task t = task;
+		String projectId = m_currProj.getProjectId();
+		List<LampsTaskAllot> allots = new ArrayList<LampsTaskAllot>();
+		List<ResourceAssignment> resourceAssignments = t.getResourceAssignments();
+		if (resourceAssignments == null || resourceAssignments.size() <= 0) {
+			return allots;
+		}
+		List<String> reses = new ArrayList<String>();
+		for (int i = 0; i < resourceAssignments.size(); i++) {
+			ResourceAssignment ra = resourceAssignments.get(i);
+			if (ra.getResource() == null) {
+				continue;
+			}
+			String resId = DigestUtils.md5DigestAsHex((ra.getResource().getUniqueID().toString()).getBytes());
+			String taskId = DigestUtils.md5DigestAsHex((m_fileName + projectId + ra.getTask().getGUID()).getBytes());
+			String str = taskId + resId;
+			if (reses.contains(str)) {
+				continue;
+			}
+			reses.add(str);
+			LampsTaskAllot allot = new LampsTaskAllot();
+			allot.setId(DigestUtils.md5DigestAsHex(str.getBytes()));
+			allot.setTaskId(taskId);
+			allot.setResId(resId);
+			allot.setSapGoodsId(ra.getText(11));
+			allot.setWork(ra.getWork().getDuration());
+			allot.setCostRateTable(ra.getCostRateTable().get(0).getStandardRate().getAmount());
+			allot.setCost(ra.getCost().doubleValue());
+			allot.setFileCode(DigestUtils.md5DigestAsHex(m_fileName.getBytes()));
+			allot.setSvnLastVersion(m_svnLastVersion);
+			allots.add(allot);
+			m_allAllots.add(allot);
+		}
+		return allots;
+	}
+
+	private List<LampsFrontTask> getLampsFrontTasks(Task task) {
+		Task t = task;
+		String projectId = m_currProj.getProjectId();
+		List<LampsFrontTask> tasks = new ArrayList<LampsFrontTask>();
+		List<Relation> predecessors = t.getPredecessors();
+		if (predecessors != null && predecessors.size() > 0) {
+			Iterator<Relation> iterator = predecessors.iterator();
+			while (iterator.hasNext()) {
+				Relation r = (Relation) iterator.next();
+				LampsFrontTask ft = new LampsFrontTask();
+				Task st = r.getSourceTask();
+				Task ct = r.getTargetTask();// 前置任务
+				String taskId = DigestUtils.md5DigestAsHex((m_fileName + projectId + st.getGUID()).getBytes());
+				String frontTaskId = DigestUtils.md5DigestAsHex((m_fileName + projectId + ct.getGUID()).getBytes());
+				ft.setId(DigestUtils.md5DigestAsHex((taskId + frontTaskId).getBytes()));
+				ft.setType(r.getType().name());
+				ft.setTaskId(taskId);
+				ft.setFrontTaskId(frontTaskId);
+				ft.setDelayTime(r.getLag().getDuration());
+				ft.setFileCode(DigestUtils.md5DigestAsHex(m_fileName.getBytes()));
+				ft.setSvnLastVersion(m_svnLastVersion);
+				tasks.add(ft);
+				m_allFronts.add(ft);
+			}
+		}
+		return tasks;
+	}
+
+	private List<LampsResource> getLampsResources(ProjectFile pFile) {
+		if (pFile == null) {
+			return new ArrayList<LampsResource>();
+		}
+		List<LampsResource> ress = new ArrayList<LampsResource>();
+		ResourceContainer resources = pFile.getResources();
+		Iterator<Resource> iterator = resources.iterator();
+		while (iterator.hasNext()) {
+			Resource r = iterator.next();
+//			if (r.getCode() == null || r.getCode().equals("")) {
+//				continue;
+//			}
+			LampsResource res = new LampsResource();
+			res.setId(DigestUtils.md5DigestAsHex((r.getUniqueID().toString()).getBytes()));
+			res.setGuid(r.getGUID().toString());
+			res.setResId(r.getID());
+			res.setUniqueId(r.getUniqueID());
+			res.setType(r.getType().getValue());
+			res.setName(r.getName());
+			res.setResGroup(r.getGroup());
+			res.setMaterialLabel(r.getMaterialLabel());
+			res.setStandardRate(r.getStandardRate().getAmount());
+			res.setCode(r.getCode());
+			res.setNotes(r.getNotes());
+			res.setText1(r.getText(1));
+			res.setText2(r.getText(2));
+			res.setText3(r.getText(3));
+			res.setText4(r.getText(4));
+			res.setText5(r.getText(5));
+			res.setFileCode(DigestUtils.md5DigestAsHex(m_fileName.getBytes()));
+			res.setSvnLastVersion(m_svnLastVersion);
+			ress.add(res);
+			m_allResources.add(res);
+		}
+		return ress;
+	}
+
+	private String getProjectId(Task task) {
+		Task t = task;
+		int uniqueId = t.getUniqueID();
+		String strUniqueId = "";
+		if (uniqueId < 10) {
+			strUniqueId = "000" + uniqueId;
+		} else if (uniqueId < 100) {
+			strUniqueId = "00" + uniqueId;
+		} else if (uniqueId < 1000) {
+			strUniqueId = "0" + uniqueId;
+		} else if (uniqueId < 10000) {
+			strUniqueId = "" + uniqueId;
+		} else {
+			strUniqueId = "0000";
+		}
+		StringBuilder sb = new StringBuilder("DQ");
+		sb.append(DateHelper.getStrDateFormat(t.getCreateDate(), "yyMM"));
+		sb.append(strUniqueId);
+		return sb.toString();
+	}
+
+	private boolean isValidFile(File file) {
+		if (file == null) {
+			return false;
+		}
+		String fileName = file.getName();
+		String[] names = fileName.split("-");
+		if (names == null || names.length <= 0) {
+			return false;
+		}
+		String yearMonth = names[0];
+		if (!DataHelper.isInteger(yearMonth)) {
+			return false;
+		}
+		m_yearMonth = yearMonth;
+		return yearMonth.length() == 6;
+	}
+
+	@Override
+	public boolean saveData(String path, Long svnLastVersion) {
+		if (this.addLampsData(path, svnLastVersion)) {
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public boolean lampsGoodsChanges(SAPGoods[] goods) {
+		new Thread(() -> {
+			String dir = commonsConfig.getSvn_export_path() + commonsConfig.getSvn_dq_dir();
+			// 1、更新灯具SVN
+			long version = SVNHelper.update(dir, commonsConfig.getSvn_username(), commonsConfig.getSvn_password());
+			System.out.println(version);
+			if (version <= 0) {
+				log.info("LampsServiceImpl lampsGoodsChanges SVN Update Failure");
+			} else {
+				// 2、获取灯具目录下所有文件，找出需要更新的project文件的路径
+				List<String> uptFiles = this.getUptFile(dir);
+				// 3、把物料列表数据更新到资源工作表之中
+				this.uptResources(uptFiles, goods);
+				// 4、上传更改之后的project文件
+				SVNHelper.commit(dir, commonsConfig.getSvn_username(), commonsConfig.getSvn_password());
+			}
+		}).start();
+
+		return true;
+	}
+
+	/**
+	 * 获取要更新资源表的文件集合
+	 * 
+	 * @param dir
+	 * @return
+	 */
+	private List<String> getUptFile(String dir) {
+		List<String> uptFiles = new ArrayList<String>();
+		List<String> files = FileHelper.getFileList(dir);
+		if (files == null || files.size() <= 0) {
+			return uptFiles;
+		}
+		for (String file : files) {
+			if (!file.contains(Constants.MPP_ARCHIVE)) {// 归档的文件不处理
+				uptFiles.add(dir + File.separator + file);
+			}
+		}
+		return uptFiles;
+	}
+
+	/**
+	 * 更新资源工作表
+	 * 
+	 * @param uptFiles
+	 * @return
+	 */
+	private void uptResources(List<String> uptFiles, SAPGoods[] goods) {
+		LampsWriteData data = new LampsWriteData();
+		data.setResources(goods);
+		for (String file : uptFiles) {
+			jacobHelper.executeVBA(file, "WriteLampsData", JSON.toJSONStringWithDateFormat(data, "yyyy年MM月dd日",
+					SerializerFeature.WriteMapNullValue, SerializerFeature.WriteNullStringAsEmpty));
+		}
+	}
+
+}

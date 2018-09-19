@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dee.xql.proj.dao.SmsMapper">
+
+    <resultMap id="BaseResultMap" type="com.dee.xql.api.model.SmsInfo">
+        <id column="ID" jdbcType="BIGINT" property="id"/>
+        <result column="CREATE_TIME" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="MODIFY_TYPE" jdbcType="INTEGER" property="modifyType"/>
+        <result column="TASK_ID" jdbcType="VARCHAR" property="taskId"/>
+        <result column="START_DATE" jdbcType="TIMESTAMP" property="startDate"/>
+        <result column="END_DATE" jdbcType="TIMESTAMP" property="endDate"/>
+        <result column="PHONES" jdbcType="VARCHAR" property="phones"/>
+        <result column="MESS_JSON_STR" jdbcType="VARCHAR" property="messJsonStr"/>
+        <result column="SEND_TIME" jdbcType="TIMESTAMP" property="sendTime"/>
+        <result column="SEND_RESULT" jdbcType="INTEGER" property="sendResult"/>
+    </resultMap>
+
+    <!--<update id="updateSms" parameterType="java.util.List">-->
+        <!--<foreach collection="list" item="smsInfo" index="index" open="" close="" separator=";">-->
+            <!--UPDATE PROJECT_MESS_SEND-->
+            <!--<set>-->
+                <!--SEND_RESULT=#{smsInfo.sendResult,jdbcType=INTEGER},-->
+                <!--SEND_TIME=#{smsInfo.sendTime,jdbcType=TIMESTAMP}-->
+            <!--</set>-->
+            <!--where id=#{smsInfo.id,jdbcType=BIGINT}-->
+        <!--</foreach>-->
+    <!--</update>-->
+</mapper>

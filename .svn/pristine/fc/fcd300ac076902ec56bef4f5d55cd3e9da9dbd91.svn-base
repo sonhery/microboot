@@ -1,0 +1,499 @@
+package com.dee.xql.proj.service.impl;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.util.DigestUtils;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.dee.xql.api.model.FrontTaskItem;
+import com.dee.xql.api.model.ProjProductionPlanData;
+import com.dee.xql.api.model.ProjTaskAllot;
+import com.dee.xql.api.model.ProjTaskWork;
+import com.dee.xql.api.model.ResourceItem;
+import com.dee.xql.api.utils.DateHelper;
+import com.dee.xql.api.utils.SVNHelper;
+import com.dee.xql.proj.config.CommonsConfig;
+import com.dee.xql.proj.dao.ProjProductionPlanMapper;
+import com.dee.xql.proj.dao.ProjTaskWorkMapper;
+import com.dee.xql.proj.enums.ProjectFileType;
+import com.dee.xql.proj.service.MppService;
+import com.dee.xql.proj.service.ProjProductionPlanService;
+import com.dee.xql.proj.uitls.JacobHelper;
+
+import lombok.extern.slf4j.Slf4j;
+import net.sf.mpxj.MPXJException;
+import net.sf.mpxj.ProjectFile;
+import net.sf.mpxj.Relation;
+import net.sf.mpxj.Resource;
+import net.sf.mpxj.ResourceAssignment;
+import net.sf.mpxj.Task;
+import net.sf.mpxj.TaskMode;
+import net.sf.mpxj.TaskType;
+import net.sf.mpxj.mpp.MPPReader;
+
+@Slf4j
+@Service
+public class MppServiceImpl implements MppService {
+
+	@Autowired
+	private ProjProductionPlanService projProductionPlanService;
+	@Autowired
+	private ProjProductionPlanMapper projProductionPlanMapper;
+	@Autowired
+	private ProjTaskWorkMapper projTaskWorkMapper;
+	@Autowired
+	private JacobHelper jacobHelper;
+	@Autowired
+	private CommonsConfig commonsConfig;
+
+	@Override
+	public void saveData(String path, ProjectFileType type, Long svnVersion) {
+		try {
+
+			ProjProductionPlanData projProductionPlanData = this.read(path, type, svnVersion);
+			if (projProductionPlanData == null) {
+				log.info("saveData() projProductionPlanData == null");
+				return;
+			}
+			log.info("*** Project File *** " + path);
+			String strres = "";
+			Map<String, Object> map = new HashMap<>();
+			map.put("p_summary_id", projProductionPlanData.getSummaryId());
+			map.put("p_proj_task_works", projProductionPlanData.getProjTaskWorks());
+			map.put("p_front_task_items", projProductionPlanData.getFrontTaskItems());
+			map.put("p_proj_task_allots", projProductionPlanData.getProjTaskAllots());
+			map.put("p_resource_items", projProductionPlanData.getResourceItems());
+			map.put("p_res", strres);
+			projProductionPlanMapper.saveProjData(map);
+
+			Map<String, Object> map1 = new HashMap<>();
+			map1.put("p_summary_id", projProductionPlanData.getSummaryId());
+			if (projProductionPlanData.getProjTaskWorks().size() > 0) {
+				map1.put("p_project_id", projProductionPlanData.getProjTaskWorks().get(0).getProjectId());
+				map1.put("p_file_name", projProductionPlanData.getProjTaskWorks().get(0).getFileName());
+			} else {
+				map1.put("p_project_id", "");
+				map1.put("p_file_name", "");
+			}
+			map1.put("p_res", strres);
+			strres = (String) map.get("p_res");
+			log.info("strres:" + strres);
+			JSONObject jobj = JSON.parseObject(strres);
+
+			if (jobj.getIntValue("code") == 1) {
+				log.info("主数据操作");
+				if (type == ProjectFileType.MPP_TASK) {
+					projProductionPlanMapper.saveProjMainData(map1);
+				} else {
+					projProductionPlanMapper.saveResourceItems(map1);
+				}
+				strres = (String) map1.get("p_res");
+				log.info("strres1:" + strres);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error("saveData ", e);
+		}
+	}
+
+	@Override
+	public ProjProductionPlanData read(String path, ProjectFileType type, Long svnVersion) throws MPXJException {
+		MPPReader reader = new MPPReader();
+		File file = new File(path);
+		ProjectFile pFile = reader.read(file);
+		String fileName = file.getName();
+		String name = fileName.substring(0, fileName.lastIndexOf("."));
+		Long summaryId = UUID.randomUUID().getMostSignificantBits();
+		ProjProductionPlanData pppd = new ProjProductionPlanData();
+		pppd.setSummaryId(summaryId);
+		if (type == ProjectFileType.MPP_TASK) {
+			String strProjectId = fileName.substring(0, fileName.indexOf("-"));
+			String projectId = strProjectId.substring(0, strProjectId.length() - 1);
+			List<ProjTaskWork> projTaskWorks = new ArrayList<>();
+			List<FrontTaskItem> frontTaskItems = new ArrayList<>();
+			List<Task> tasks = pFile.getTasks();
+			if (tasks == null) {
+				log.info(path + " 的 tasks 为null");
+				return null;
+			}
+			if (tasks.size() <= 0) {
+				log.info(path + " 的 tasks.size() <= 0");
+				return null;
+			}
+			for (int i = 0; i < tasks.size(); i++) {
+				Task t = tasks.get(i);
+				if (t.getID() == 0) {
+					continue;
+				}
+				projTaskWorks.add(this.projTaskWork(t, name, projectId, strProjectId, summaryId, svnVersion));
+				List<Relation> predecessors = t.getPredecessors();
+				if (predecessors != null && predecessors.size() > 0) {
+					Iterator<Relation> iterator = predecessors.iterator();
+					while (iterator.hasNext()) {
+						Relation relation = (Relation) iterator.next();
+						frontTaskItems.add(this.frontsTaskItems(relation, fileName, projectId, summaryId, svnVersion));
+					}
+				}
+			}
+			pppd.setProjTaskWorks(projTaskWorks);
+			pppd.setFrontTaskItems(frontTaskItems);
+			pppd.setProjTaskAllots(this.projTaskAllots(pFile, fileName, projectId, summaryId, svnVersion));
+		} else if (type == ProjectFileType.MPP_RESOURCE) {
+			pppd.setResourceItems(this.resourceItems(pFile, summaryId, svnVersion));
+		}
+		return pppd;
+	}
+
+	@Override
+	public ProjTaskWork projTaskWork(Task t, String fileName, String projectId, String strProjectId, Long summaryId,
+			Long svnVersion) {
+		ProjTaskWork pWork = new ProjTaskWork();
+		pWork.setId(DigestUtils.md5DigestAsHex((fileName + ".mpp" + projectId + t.getGUID()).getBytes()));
+		pWork.setTaskUid(t.getGUID().toString());
+		pWork.setProjectId(projectId);
+		if (t.getName() != null && t.getID() != 0) {
+			pWork.setTaskSequenceCode(getTaskNo(t.getName()));
+		}
+		pWork.setTaskName(t.getName());
+		pWork.setWbs(((int) (strProjectId.toLowerCase().charAt(strProjectId.length() - 1)) - 96) + "." + t.getWBS());
+		pWork.setActive((t.getActive() ? 1 : 0));
+		if (t.getParentTask() != null) {
+			pWork.setSuperiorTaskId(DigestUtils
+					.md5DigestAsHex((fileName + ".mpp" + projectId + t.getParentTask().getGUID()).getBytes()));
+			pWork.setSuperiorTaskUid(t.getParentTask().getGUID().toString());
+		}
+		pWork.setNotes(t.getNotes());
+		pWork.setContact(t.getContact());
+		if (t.getTaskMode() == TaskMode.AUTO_SCHEDULED) {
+			pWork.setTaskModel("自动任务");
+		} else {
+			pWork.setTaskModel("手动任务");
+		}
+		pWork.setPriority(t.getPriority().getValue());
+		pWork.setIsMilepost((t.getMilestone() ? 1 : 0));
+		pWork.setPlanStartDate(t.getStart());
+		pWork.setPlanEndDate(t.getFinish());
+		pWork.setPlanTimeLimit(t.getDuration().getDuration());
+		pWork.setLastDate(t.getDeadline());
+		pWork.setStartDate(t.getStart(1));
+		pWork.setEndDate(t.getFinish(1));
+		pWork.setTimeLimit(t.getActualDuration().getDuration());
+		pWork.setWorkHours(t.getActualWork().getDuration());
+		pWork.setCompletePercent(t.getPercentageComplete().doubleValue());
+		pWork.setFirstStartDate(t.getEarlyStart());
+		pWork.setFirstCompleteDate(t.getEarlyFinish());
+		pWork.setLastStartDate(t.getLateStart());
+		pWork.setLastCompleteDate(t.getLateFinish());
+		pWork.setStartDelay(t.getStartSlack().getDuration());
+		pWork.setCompleteDelay(t.getFinishSlack().getDuration());
+		pWork.setTotalDelay(t.getTotalSlack().getDuration());
+		pWork.setCreateDate(t.getCreateDate());
+		pWork.setOverallocated(t.getOverAllocated() ? 1 : 0);
+		if (t.getType() == TaskType.FIXED_UNITS) {
+			pWork.setTaskType("固定单位");
+		} else if (t.getType() == TaskType.FIXED_DURATION) {
+			pWork.setTaskType("固定工期");
+		} else {
+			pWork.setTaskType("固定工时");
+		}
+		if (t.getCalendar() != null) {
+			pWork.setCalendarGuid(t.getCalendar().getUniqueID().toString());
+		}
+		pWork.setEstimated(t.getEstimated() ? 1 : 0);
+		pWork.setConstraintType(String.valueOf(t.getConstraintType().getValue()));
+		pWork.setConstraintDate(t.getConstraintDate());
+		pWork.setFileName(fileName + ".mpp");
+		pWork.setSummaryId(summaryId);
+		pWork.setIsSummary(t.getSummary() ? 1 : 0);
+		pWork.setTaskSupervision(t.getText(11));
+		pWork.setTaskCode(t.getText(12));
+		pWork.setSvnLastVersion(svnVersion);
+		List<ResourceAssignment> ras = t.getResourceAssignments();
+		String resourceNames = "";
+		for (int j = 0; j < ras.size(); j++) {
+			ResourceAssignment ra = ras.get(j);
+			if (ra.getResource() != null && ra.getResource().getCode() != null
+					&& !ra.getResource().getCode().equals("")) {
+				resourceNames += ra.getResource().getName();
+				resourceNames += ",";
+			}
+		}
+		if (resourceNames.length() > 0) {
+			resourceNames = resourceNames.substring(0, resourceNames.length() - 1);
+		}
+		pWork.setResourceNames(resourceNames);
+		pWork.setCost(t.getCost().doubleValue());
+		pWork.setOvertimeCost(t.getOvertimeCost().doubleValue());
+		pWork.setFixedCost(t.getFixedCost().doubleValue());
+		pWork.setActualCost(t.getActualCost().doubleValue());
+		pWork.setActualOvertimeCost(t.getActualOvertimeCost().doubleValue());
+		pWork.setActualOvertimeWork(t.getActualOvertimeWork().getDuration());
+		pWork.setPhysicalPercentComplete(t.getPhysicalPercentComplete().doubleValue());
+		pWork.setRemainingCost(t.getRemainingCost().doubleValue());
+		pWork.setRemainingDuration(t.getRemainingWork().getDuration());
+		pWork.setRemainingWork(t.getRemainingWork().getDuration());
+		pWork.setRemainingOvertimeCost(t.getRemainingOvertimeCost().doubleValue());
+		pWork.setRemainingOvertimeWork(t.getRemainingOvertimeWork().getDuration());
+		pWork.setHyperlink(t.getHyperlink());
+		pWork.setHyperlinkAddress(t.getHyperlinkAddress());
+		return pWork;
+
+	}
+
+	@Override
+	public List<ProjTaskAllot> projTaskAllots(ProjectFile pFile, String fileName, String projectId, Long summaryId,
+			Long svnVersion) {
+		List<ProjTaskAllot> projTaskAllots = new ArrayList<>();
+		List<ResourceAssignment> resourceAssignments = pFile.getResourceAssignments();
+		if (resourceAssignments == null || resourceAssignments.size() <= 0) {
+			return projTaskAllots;
+		}
+		List<String> reses = new ArrayList<String>();
+		for (int i = 0; i < resourceAssignments.size(); i++) {
+			ResourceAssignment ra = resourceAssignments.get(i);
+			if (ra.getResource() == null || ra.getResource().getCode() == null
+					|| ra.getResource().getCode().equals("")) {
+				continue;
+			}
+			String resId = DigestUtils.md5DigestAsHex(ra.getResource().getGUID().toString().getBytes());
+			String taskId = DigestUtils.md5DigestAsHex((fileName + projectId + ra.getTask().getGUID()).getBytes());
+			String str = taskId + resId;
+			if (reses.contains(str)) {
+				continue;
+			}
+			reses.add(str);
+			ProjTaskAllot pAllot = new ProjTaskAllot();
+			pAllot.setTaskId(taskId);
+			pAllot.setAssignmentUid(ra.getGUID().toString());
+			pAllot.setProjectId(projectId);
+			pAllot.setTaskUid(ra.getTask().getGUID().toString());
+			pAllot.setResourceId(resId);
+			pAllot.setResourceUid(ra.getResource().getGUID().toString());
+			pAllot.setNotes(ra.getNotes());
+			pAllot.setPlanHours(ra.getBudgetWork().getDuration());
+			pAllot.setPlanStartDate(ra.getStart());
+			pAllot.setPlanEndDate(ra.getFinish());
+			pAllot.setStartDate(ra.getActualStart());
+			pAllot.setEndDate(ra.getActualFinish());
+			pAllot.setWorkHours(ra.getActualWork().getDuration());
+			pAllot.setCreateDate(ra.getCreateDate());
+//			pAllot.setPercentWorkComplete(ra.getPercentageWorkComplete().doubleValue());
+			pAllot.setRemainingWork(ra.getRemainingWork().getDuration());
+			pAllot.setCostRateTable(getCostRateTable(ra.getCostRateTableIndex()));
+			pAllot.setUnits(ra.getUnits().doubleValue());
+			pAllot.setWorkContour(String.valueOf(ra.getWorkContour().getValue()));
+			pAllot.setSummaryId(summaryId);
+			pAllot.setSvnLastVersion(svnVersion);
+			pAllot.setTaskOutlineNumber(ra.getTask().getOutlineNumber());
+			if (ra.getTask() != null && ra.getTask().getParentTask() != null) {
+				pAllot.setTaskSummaryName(ra.getTask().getParentTask().getName());
+			}
+			pAllot.setResNo(1);
+			projTaskAllots.add(pAllot);
+		}
+		return projTaskAllots;
+	}
+
+	@Override
+	public FrontTaskItem frontsTaskItems(Relation r, String fileName, String projectId, Long summaryId,
+			Long svnVersion) {
+		FrontTaskItem fItem = new FrontTaskItem();
+		Task st = r.getSourceTask();
+		Task ct = r.getTargetTask();// 前置任务
+		fItem.setFrontType(r.getType().name());
+		fItem.setTaskId(DigestUtils.md5DigestAsHex((fileName + projectId + st.getGUID()).getBytes()));
+		fItem.setTaskUid(st.getGUID().toString());
+		fItem.setProjectId(projectId);
+		fItem.setFrontTaskId(DigestUtils.md5DigestAsHex((fileName + projectId + ct.getGUID()).getBytes()));
+		fItem.setFrontTaskUid(ct.getGUID().toString());
+		fItem.setFrontProjectId(projectId);
+		fItem.setSummaryId(summaryId);
+		fItem.setDelayTime(r.getLag().getDuration());
+		fItem.setSvnLastVersion(svnVersion);
+		return fItem;
+	}
+
+	@Override
+	public List<ResourceItem> resourceItems(ProjectFile pFile, Long summaryId, Long svnVersion) {
+		List<ResourceItem> resourceItems = new ArrayList<>();
+		List<Resource> resources = pFile.getResources();
+		for (int i = 0; i < resources.size(); i++) {
+			Resource r = resources.get(i);
+			if (r.getCode() == null || r.getCode().equals("")) {
+				continue;
+			}
+			ResourceItem rItem = new ResourceItem();
+			rItem.setId(DigestUtils.md5DigestAsHex(r.getGUID().toString().getBytes()));
+			rItem.setResourceUid(r.getGUID().toString());
+			rItem.setResName(r.getName());
+			rItem.setResInitials(r.getInitials());
+			rItem.setResCode(r.getCode());
+			rItem.setResType(String.valueOf(r.getType().getValue()));
+			rItem.setResUnit(r.getMaterialLabel());
+			rItem.setResGroup(r.getGroup());
+			rItem.setNotes(r.getNotes());
+			rItem.setMaxUnits(r.getMaxUnits().doubleValue());
+			rItem.setStandardRate(r.getStandardRate().getAmount());
+			rItem.setOvertimeRate(r.getOvertimeRate().getAmount());
+			rItem.setActiveStartDate(r.getAvailableFrom());
+			rItem.setActiveEndDate(r.getAvailableTo());
+			rItem.setCreateDate(r.getCreationDate());
+			rItem.setSummaryId(summaryId);
+			rItem.setSvnLastVersion(svnVersion);
+			rItem.setCostPerUse(r.getCostPerUse().doubleValue());
+			rItem.setCost(r.getCost().doubleValue());
+			rItem.setOvertimeCost(r.getOvertimeCost().doubleValue());
+			rItem.setActualCost(r.getActualCost().doubleValue());
+			rItem.setActualOvertimeCost(r.getActualOvertimeCost().doubleValue());
+			rItem.setActualOvertimeWork(r.getActualOvertimeWork().getDuration());
+			if (r.getPercentWorkComplete() != null) {
+				rItem.setPercentWorkComplete(r.getPercentWorkComplete().doubleValue());
+			} else {
+				rItem.setPercentWorkComplete(0.0);
+			}
+			rItem.setRemainingCost(r.getRemainingCost().doubleValue());
+			rItem.setRemainingWork(r.getRemainingWork().getDuration());
+			rItem.setRemainingOvertimeCost(r.getRemainingOvertimeCost().doubleValue());
+			rItem.setRemainingOvertimeWork(r.getRemainingOvertimeWork().getDuration());
+			rItem.setHyperlink(r.getHyperlink());
+			rItem.setHyperlinkAddress(r.getHyperlinkAddress());
+			rItem.setBaseCalendar(r.getBaseCalendar());
+			if (r.getResourceCalendar() != null) {
+				rItem.setCalendarGuid(r.getResourceCalendar().getUniqueID().toString());
+			}
+			resourceItems.add(rItem);
+		}
+		return resourceItems;
+	}
+
+	private static String getCostRateTable(int costRateTableIndex) {
+		switch (costRateTableIndex) {
+		case 0:
+			return "A";
+		case 1:
+			return "B";
+		case 2:
+			return "C";
+		case 3:
+			return "D";
+		case 4:
+			return "E";
+		}
+		return "";
+	}
+
+	private static String getTaskNo(String taskName) {
+		if (taskName == null || taskName.equals("")) {
+			return "";
+		}
+		if (taskName.indexOf("-") <= 0) {
+			return "";
+		}
+		return taskName.substring(0, taskName.indexOf("-"));
+	}
+
+	@Override
+	public List<ProjTaskWork> findExportTasks() {
+		List<ProjTaskWork> works = projTaskWorkMapper.findExportTasks();
+		if (works == null || works.size() <= 0) {
+			return new ArrayList<ProjTaskWork>();
+		}
+		List<ProjTaskWork> taskWorks = new ArrayList<ProjTaskWork>();
+		List<String> tages = new ArrayList<String>();
+		Iterator<ProjTaskWork> itor = works.iterator();
+		while (itor.hasNext()) {
+			ProjTaskWork work = itor.next();
+			String stage = work.getFileName().substring(work.getFileName().lastIndexOf("-"));
+			if (!tages.contains(stage)) {
+				taskWorks.add(work);
+				tages.add(stage);
+			}
+		}
+		return taskWorks;
+	}
+
+	@Override
+	public synchronized boolean write(String path, String content) {
+		try {
+			return jacobHelper.executeVBA(path, "WriteProjData", content);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error("write 内部错误");
+		}
+		return false;
+	}
+
+	@Override
+	public void exportMpp() {
+		List<ProjTaskWork> projTaskWorks = this.findExportTasks();
+		if (projTaskWorks.size() <= 0) {
+			return;
+		}
+		SVNHelper.update(commonsConfig.getSvn_export_path(), commonsConfig.getSvn_username(),
+				commonsConfig.getSvn_password());
+		List<String> paths = new ArrayList<String>();
+		Iterator<ProjTaskWork> itor = projTaskWorks.iterator();
+		while (itor.hasNext()) {
+			ProjTaskWork next = itor.next();
+			String path = this.getFilePath(next.getProjectId(), next.getFileName());
+			boolean bRet = exportMpp(path + File.separator + next.getFileName(), next.getProjectId(),
+					next.getFileName());
+			if (bRet) {
+				// 更新导出时间
+				uptExportDate(next.getFileName(), new Date());
+				if (!paths.contains(path)) {
+					paths.add(path);
+				}
+			}
+			log.info("导出MPP文件： " + next.getFileName() + " " + bRet);
+		}
+		for (int i = 0; i < paths.size(); i++) {
+			log.info(paths.get(i));
+
+			SVNHelper.commit(paths.get(i), commonsConfig.getSvn_username(), commonsConfig.getSvn_password());
+		}
+	}
+
+	private boolean uptExportDate(String fileName, Date uptDate) {
+		return projProductionPlanMapper.uptExportDate(fileName,
+				DateHelper.getStrDateFormat(uptDate, "yyyy-MM-dd HH:mm:ss")) > 0;
+	}
+
+	private synchronized boolean exportMpp(String path, String projectId, String fileName) {
+		// 获取此项目下所有任务信息、任务分配信息、资源信息
+		ProjProductionPlanData planData = projProductionPlanService.getProjProductionPlayDataByProjectId(projectId,
+				fileName);
+		if (planData == null) {
+			log.info("a8ProjectPlanDownload planData == null");
+			return false;
+		}
+		log.info(JSON.toJSONStringWithDateFormat(planData, "yyyy年MM月dd日", SerializerFeature.WriteMapNullValue,
+				SerializerFeature.WriteNullStringAsEmpty));
+		boolean bRet = this.write(path, JSON.toJSONStringWithDateFormat(planData, "yyyy年MM月dd日",
+				SerializerFeature.WriteMapNullValue, SerializerFeature.WriteNullStringAsEmpty));
+		if (!bRet) {
+			log.info("a8ProjectPlanDownload !bRet");
+			return false;
+		}
+		return true;
+	}
+
+	public String getFilePath(String projectId, String fileName) {
+		String svnDir = commonsConfig.getSvn_export_path();
+		String fileDir = fileName.substring(fileName.indexOf("-"));
+		fileDir = fileDir.substring(0, fileDir.lastIndexOf("-"));
+		// 获取文件加路径
+		return svnDir + projectId + fileDir;
+	}
+}

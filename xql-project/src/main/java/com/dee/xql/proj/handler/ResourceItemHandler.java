@@ -1,0 +1,140 @@
+package com.dee.xql.proj.handler;
+
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+
+import org.apache.ibatis.type.BaseTypeHandler;
+import org.apache.ibatis.type.JdbcType;
+
+import com.dee.xql.api.model.ResourceItem;
+import com.dee.xql.proj.uitls.DBHelper;
+
+import oracle.sql.ARRAY;
+import oracle.sql.ArrayDescriptor;
+import oracle.sql.STRUCT;
+import oracle.sql.StructDescriptor;
+
+@SuppressWarnings("deprecation")
+public class ResourceItemHandler extends BaseTypeHandler<Object> {
+	
+    @SuppressWarnings("unchecked")
+	@Override
+    public void setNonNullParameter(PreparedStatement preparedStatement, int i, Object o, JdbcType jdbcType) throws
+            SQLException {
+        Connection conn = null;
+        try {
+            if (null != o) {
+                List<ResourceItem> resourceItems = (List<ResourceItem>) o;
+                conn = DBHelper.getConn();
+                // 这里必须用大写，而且需要引入一个包，如果不引入这个包的话字符串无法正常转换，包是：orai18n.jar
+                ARRAY array = getArray(conn, "VO_RESOURCE_ITEM_SVN", "VT_RESOURCE_ITEM_SVN", resourceItems);
+                preparedStatement.setArray(i, array);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (null != conn) {
+                conn.close();
+            }
+        }
+    }
+
+    private ARRAY getArray(Connection conn, String OracleObj, String Oraclelist, List<ResourceItem> listData)
+            throws Exception {
+        ARRAY array = null;
+
+        ArrayDescriptor desc = ArrayDescriptor.createDescriptor(Oraclelist, conn);
+        STRUCT[] structs = new STRUCT[listData.size()];
+        if (listData != null && listData.size() > 0) {
+            StructDescriptor structdesc = new StructDescriptor(OracleObj, conn);
+            for (int i = 0; i < listData.size(); i++) {
+                ResourceItem ri = listData.get(i);
+                Object[] result = {
+                        ri.getId(),
+                        ri.getResourceUid(),
+                        ri.getResName(),
+                        ri.getResInitials(),
+                        ri.getResCode(),
+                        ri.getResType(),
+                        ri.getResUnit(),
+                        ri.getResGroup(),
+                        ri.getNotes(),
+                        ri.getMaxUnits(),
+                        ri.getStandardRate(),
+                        ri.getOvertimeRate(),
+                        ri.getActiveStartDate() == null ? ri.getActiveStartDate() : new Date(ri.getActiveStartDate()
+                                .getTime()),
+                        ri.getActiveEndDate() == null ? ri.getActiveEndDate() : new Date(ri.getActiveEndDate()
+                                .getTime()),
+                        ri.getCreateDate() == null ? ri.getCreateDate() : new Date(ri.getCreateDate().getTime()),
+                        ri.getActive(),
+                        ri.getFileName(),
+                        ri.getSummaryId(),
+                        ri.getSvnLastVersion(),
+                        ri.getCostPerUse(),
+                        ri.getCost(),
+                        ri.getOvertimeCost(),
+                        ri.getActualCost(),
+                        ri.getActualOvertimeCost(),
+                        ri.getActualOvertimeWork(),
+                        ri.getPercentWorkComplete(),
+                        ri.getRemainingCost(),
+                        ri.getRemainingWork(),
+                        ri.getRemainingOvertimeCost(),
+                        ri.getRemainingOvertimeWork(),
+                        ri.getHyperlink(),
+                        ri.getHyperlinkAddress(),
+                        ri.getBaseCalendar(),
+                        ri.getCalendarGuid(),
+                        
+                        /** 2018-09-12 添加代码 */
+                        ri.getResOriginName(),
+                        ri.getWorkGroupCode(),
+                        ri.getNameVerify(),
+                        ri.getVerifyAlert(),
+                        ri.getMainPart(),
+                        ri.getDeptName(),
+                        ri.getJoinCode(),
+                        ri.getLabelType(),
+                        ri.getLabelGroupCode(),
+                        ri.getLabel1(),
+                        ri.getLabel2(),
+                        ri.getLabel3(),
+                        ri.getLabel4(),
+                        ri.getLabel5(),
+                        ri.getLabel6(),
+                        ri.getLabel7(),
+                        ri.getLabel8(),
+                        ri.getLabelStr(),
+                        ri.getDefaultLabel(),
+                        ri.getMutipleChoiceLabel()
+                };
+                structs[i] = new STRUCT(structdesc, conn, result);
+            }
+            array = new ARRAY(desc, conn, structs);
+        } else {
+            array = new ARRAY(desc, conn, structs);
+        }
+        return array;
+    }
+
+    @Override
+    public Object getNullableResult(ResultSet resultSet, String s) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public Object getNullableResult(ResultSet resultSet, int i) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public Object getNullableResult(CallableStatement callableStatement, int i) throws SQLException {
+        return null;
+    }
+}

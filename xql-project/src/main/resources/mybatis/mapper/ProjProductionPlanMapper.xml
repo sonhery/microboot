@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dee.xql.proj.dao.ProjProductionPlanMapper">
+
+    <resultMap id="ProjTaskWorkMap" type="com.dee.xql.api.model.ProjTaskWork">
+        <result column="ID" jdbcType="VARCHAR" property="id"/>
+        <result column="TASK_UID" jdbcType="VARCHAR" property="taskUid"/>
+        <result column="PROJECT_ID" jdbcType="VARCHAR" property="projectId"/>
+        <result column="TASK_SEQUENCE_CODE" jdbcType="VARCHAR" property="taskSequenceCode"/>
+        <result column="TASK_NAME" jdbcType="VARCHAR" property="taskName"/>
+        <result column="WBS" jdbcType="VARCHAR" property="wbs"/>
+        <result column="ACTIVE" jdbcType="VARCHAR" property="active"/>
+        <result column="SUPERIOR_TASK_ID" jdbcType="VARCHAR" property="superiorTaskId"/>
+        <result column="SUPERIOR_TASK_UID" jdbcType="VARCHAR" property="superiorTaskUid"/>
+        <result column="NOTES" jdbcType="VARCHAR" property="notes"/>
+        <result column="CONTACT" jdbcType="VARCHAR" property="contact"/>
+        <result column="TASK_MODEL" jdbcType="VARCHAR" property="taskModel"/>
+        <result column="PRIORITY" jdbcType="VARCHAR" property="priority"/>
+        <result column="IS_MILEPOST" jdbcType="VARCHAR" property="isMilepost"/>
+        <result column="PLAN_START_DATE" jdbcType="VARCHAR" property="planStartDate"/>
+        <result column="PLAN_END_DATE" jdbcType="VARCHAR" property="planEndDate"/>
+        <result column="PLAN_TIME_LIMIT" jdbcType="VARCHAR" property="planTimeLimit"/>
+        <result column="LAST_DATE" jdbcType="VARCHAR" property="lastDate"/>
+        <result column="START_DATE" jdbcType="VARCHAR" property="startDate"/>
+        <result column="END_DATE" jdbcType="VARCHAR" property="endDate"/>
+        <result column="TIME_LIMIT" jdbcType="VARCHAR" property="timeLimit"/>
+        <result column="WORK_HOURS" jdbcType="VARCHAR" property="workHours"/>
+        <result column="COMPLETE_PERCENT" jdbcType="VARCHAR" property="completePercent"/>
+        <result column="FIRST_START_DATE" jdbcType="VARCHAR" property="firstStartDate"/>
+        <result column="FIRST_COMPLETE_DATE" jdbcType="VARCHAR" property="firstCompleteDate"/>
+        <result column="LAST_START_DATE" jdbcType="VARCHAR" property="lastStartDate"/>
+        <result column="LAST_COMPLETE_DATE" jdbcType="VARCHAR" property="lastCompleteDate"/>
+        <result column="STRAT_DELAY" jdbcType="VARCHAR" property="startDelay"/>
+        <result column="COMPLETE_DELAY" jdbcType="VARCHAR" property="completeDelay"/>
+        <result column="TOTAL_DELAY" jdbcType="VARCHAR" property="totalDelay"/>
+        <result column="CREATE_DATE" jdbcType="VARCHAR" property="createDate"/>
+        <result column="OVERALLOCATED" jdbcType="VARCHAR" property="overallocated"/>
+        <result column="TASK_TYPE" jdbcType="VARCHAR" property="taskType"/>
+        <result column="CALENDAR_GUID" jdbcType="VARCHAR" property="calendarGuid"/>
+        <result column="ESTIMATED" jdbcType="VARCHAR" property="estimated"/>
+        <result column="CONSTRAINT_TYPE" jdbcType="VARCHAR" property="constraintType"/>
+        <result column="CONSTRAINT_DATE" jdbcType="VARCHAR" property="constraintDate"/>
+        <result column="LOG_ID" jdbcType="VARCHAR" property="logId"/>
+        <result column="FILE_NAME" jdbcType="VARCHAR" property="fileName"/>
+        <result column="START_MODE" jdbcType="VARCHAR" property="startMode"/>
+        <result column="SUMMARY_ID" jdbcType="VARCHAR" property="summaryId"/>
+        <result column="SVN_LAST_VERSION" jdbcType="VARCHAR" property="svnLastVersion"/>
+    </resultMap>
+
+    <resultMap id="ProjTaskAllotMap" type="com.dee.xql.api.model.ProjTaskAllot">
+        <result column="TASK_ID" jdbcType="VARCHAR" property="taskId"/>
+        <result column="ASSIGNMENT_UID" jdbcType="VARCHAR" property="assignmentUid"/>
+        <result column="TASK_UID" jdbcType="VARCHAR" property="taskUid"/>
+        <result column="PROJECT_ID" jdbcType="VARCHAR" property="projectId"/>
+        <result column="RESOURCE_ID" jdbcType="VARCHAR" property="resourceId"/>
+        <result column="RESOURCE_UID" jdbcType="VARCHAR" property="resourceUid"/>
+        <result column="NOTES" jdbcType="VARCHAR" property="notes"/>
+        <result column="PLAN_HOURS" jdbcType="VARCHAR" property="planHours"/>
+        <result column="PLAN_START_DATE" jdbcType="VARCHAR" property="planStartDate"/>
+        <result column="PLAN_END_DATE" jdbcType="VARCHAR" property="planEndDate"/>
+        <result column="START_DATE" jdbcType="VARCHAR" property="startDate"/>
+        <result column="END_DATE" jdbcType="VARCHAR" property="endDate"/>
+        <result column="WORK_HOURS" jdbcType="VARCHAR" property="workHours"/>
+        <result column="CREATE_DATE" jdbcType="VARCHAR" property="createDate"/>
+        <result column="PERCENT_WORK_COMPLETE" jdbcType="VARCHAR" property="percentWorkComplete"/>
+        <result column="REMAINING_WORK" jdbcType="VARCHAR" property="remainingWork"/>
+        <result column="COST_RATE_TABLE" jdbcType="VARCHAR" property="costRateTable"/>
+        <result column="UNITS" jdbcType="VARCHAR" property="units"/>
+        <result column="WORK_CONTOUR" jdbcType="VARCHAR" property="workContour"/>
+        <result column="SUMMARY_ID" jdbcType="VARCHAR" property="summaryId"/>
+        <result column="SVN_LAST_VERSION" jdbcType="VARCHAR" property="svnLastVersion"/>
+    </resultMap>
+
+    <resultMap id="ResourceItemMap" type="com.dee.xql.api.model.ResourceItem">
+        <result column="ID" jdbcType="VARCHAR" property="id"/>
+        <result column="RESOURCE_UID" jdbcType="VARCHAR" property="resourceUid"/>
+        <result column="RES_NAME" jdbcType="VARCHAR" property="resName"/>
+        <result column="RES_INITIALS" jdbcType="VARCHAR" property="resInitials"/>
+        <result column="RES_CODE" jdbcType="VARCHAR" property="resCode"/>
+        <result column="RES_TYPE" jdbcType="VARCHAR" property="resType"/>
+        <result column="RES_UNIT" jdbcType="VARCHAR" property="resUnit"/>
+        <result column="RES_GROUP" jdbcType="VARCHAR" property="resGroup"/>
+        <result column="NOTES" jdbcType="VARCHAR" property="notes"/>
+        <result column="MAX_UNITS" jdbcType="VARCHAR" property="maxUnits"/>
+        <result column="NORMAL_RATE" jdbcType="VARCHAR" property="standardRate"/>
+        <result column="OVERTIME_RATE" jdbcType="VARCHAR" property="overtimeRate"/>
+        <result column="ACTIVE_START_DATE" jdbcType="VARCHAR" property="activeStartDate"/>
+        <result column="ACTIVE_END_DATE" jdbcType="VARCHAR" property="activeEndDate"/>
+        <result column="CREATE_DATE" jdbcType="VARCHAR" property="createDate"/>
+        <result column="ACTIVE" jdbcType="VARCHAR" property="active"/>
+        <result column="FILE_NAME" jdbcType="VARCHAR" property="fileName"/>
+        <result column="SUMMARY_ID" jdbcType="VARCHAR" property="summaryId"/>
+        <result column="SVN_LAST_VERSION" jdbcType="VARCHAR" property="svnLastVersion"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+		ID,FIELD0001,FIELD0002,FIELD0003,FIELD0004,FIELD0005,FIELD0006,FIELD0007,FIELD0008,
+		FIELD0009,FIELD0010,FIELD0011,FIELD0012,FIELD0013
+	</sql>
+
+    <parameterMap id="_map" type="java.util.Map">
+        <parameter property="p_summary_id" jdbcType="BIGINT"
+                   javaType="java.lang.Long" mode="IN"/>
+        <parameter property="p_proj_task_works" jdbcType="ARRAY"
+                   javaType="java.util.List" mode="IN"
+                   typeHandler="com.dee.xql.proj.handler.ProjTaskWorkHandler"/>
+        <parameter property="p_front_task_items" jdbcType="ARRAY"
+                   javaType="java.util.List" mode="IN"
+                   typeHandler="com.dee.xql.proj.handler.FrontTaskItemHandler"/>
+        <parameter property="p_proj_task_allots" jdbcType="ARRAY"
+                   javaType="java.util.List" mode="IN"
+                   typeHandler="com.dee.xql.proj.handler.ProjTaskAllotHandler"/>
+        <parameter property="p_resource_items" jdbcType="ARRAY"
+                   javaType="java.util.List" mode="IN"
+                   typeHandler="com.dee.xql.proj.handler.ResourceItemHandler"/>
+        <parameter property="p_res" jdbcType="VARCHAR" javaType="java.lang.String"
+                   mode="OUT"/>
+    </parameterMap>
+
+    <parameterMap id="_map2" type="java.util.Map">
+        <parameter property="p_summary_id" jdbcType="BIGINT"
+                   javaType="java.lang.Long" mode="IN"/>
+        <parameter property="p_project_id" jdbcType="VARCHAR"
+                   javaType="java.lang.String" mode="IN"/>
+        <parameter property="p_file_name" jdbcType="VARCHAR"
+                   javaType="java.lang.String" mode="IN"/>
+        <parameter property="p_res" jdbcType="VARCHAR"
+                   javaType="java.lang.String" mode="OUT"/>
+    </parameterMap>
+
+    <select id="saveProjData" statementType="CALLABLE" parameterMap="_map">
+		call DEE_SAVE_PROJ_PLAN_SVN(?,?,?,?,?,?)
+	</select>
+
+    <select id="saveProjMainData" statementType="CALLABLE" parameterMap="_map2">
+        call DEE_SAVE_PROJ_PLAN_MAIN_SVN(?,?,?,?)
+    </select>
+    
+    <select id="saveResourceItems" statementType="CALLABLE" parameterMap="_map2">
+        call DEE_SAVE_RESOURCE_MAIN_SVN(?,?,?,?)
+    </select>
+
+    <!-- 内网：formmain_1515 外网：formmain_1538 -->
+    <update id="uptInvalidTag">
+		update formmain_1515 set FIELD0009 = #{invalid,jdbcType=VARCHAR}
+		where ID = (select form_recordid from col_summary where
+		id=#{summaryId,jdbcType=BIGINT})
+	</update>
+
+    <select id="getProjFileNameAndSummaryId" parameterType="java.lang.String"
+            resultType="com.dee.xql.api.model.ProjTaskWork">
+        SELECT FILE_NAME fileName, SUMMARY_ID summaryId FROM PROJECT_TASK_WORK_MAIN WHERE PROJECT_ID= #{projectId,jdbcType=VARCHAR} GROUP BY FILE_NAME,SUMMARY_ID
+    </select>
+
+    <select id="getProjProductionPlayDataByProjectId" parameterType="java.util.Map" statementType="CALLABLE">
+        {call PRO_PROJECT_TASK_WORK(
+            #{p_project_id, mode=IN, jdbcType=VARCHAR},
+            #{p_file_name, mode=IN, jdbcType=VARCHAR},
+            #{curr_allot_list, mode=OUT,jdbcType=CURSOR,javaType=ResultSet,resultMap=ProjTaskAllotMap},
+            #{curr_resource_list, mode=OUT,jdbcType=CURSOR,javaType=ResultSet,resultMap=ResourceItemMap},
+            #{curr_task_list, mode=OUT,jdbcType=CURSOR,javaType=ResultSet,resultMap=ProjTaskWorkMap}
+        )}
+    </select>
+	
+	<update id="uptExportDate">
+		UPDATE PROJECT_TASK_WORK_MAIN SET EXPORT_DATE=TO_DATE(#{uptDate,jdbcType=VARCHAR},'yyyy-mm-dd hh24:mi:ss') WHERE FILE_NAME=#{fileName,jdbcType=VARCHAR}
+	</update>
+	    
+</mapper>

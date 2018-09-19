@@ -1,0 +1,26 @@
+package com.dee.xql.proj.scheduler;
+
+import java.util.Date;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+
+import com.dee.xql.api.utils.DateHelper;
+import com.dee.xql.proj.service.SMSService;
+
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@Component
+public class SMSScheduler {
+
+    @Autowired
+    private SMSService smsService;
+
+    @Scheduled(cron = "0 0/1 * * * ?")
+    public void sendSms() {
+        log.info("Send SMS, Current Time: " + DateHelper.getStrDateFormat(new Date(), "yyyy-MM-dd HH:mm:ss"));
+        smsService.sendSms();
+    }
+}

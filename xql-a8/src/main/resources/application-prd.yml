@@ -1,0 +1,20 @@
+logging:
+  level:
+    root: info
+server:
+  port: 8021
+spring:
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: oracle.jdbc.OracleDriver
+    url: jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=172.16.0.168)(PORT=1521)))(CONNECT_DATA=(SERVICE_NAME=xinqianli)(SERVER=DEDICATED)))
+    username: V3XUSER
+    password: ABC-123*v3xuserout
+    filters: stat,wall
+    dbcp2:
+      min-idle: 5
+      initial-size: 5
+      max-total: 5
+      max-wait-millis: 200
+  thymeleaf:
+    cache: true

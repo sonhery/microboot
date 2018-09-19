@@ -1,0 +1,68 @@
+package com.dee.xql.a8;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.web.client.RestTemplate;
+
+import com.alibaba.fastjson.JSONObject;
+import com.dee.xql.a8.config.CommonsConfig;
+import com.dee.xql.a8.service.ContractService;
+import com.dee.xql.a8.service.RestService;
+import com.dee.xql.api.constants.SMSType;
+import com.dee.xql.api.model.Res;
+import com.dee.xql.api.model.SmsParam;
+import com.dee.xql.api.utils.SVNHelper;
+
+@SpringBootTest(classes = SpringbootApplication.class)
+@RunWith(SpringJUnit4ClassRunner.class)
+@WebAppConfiguration
+public class Tester {
+
+	@Autowired
+	private RestTemplate restTemplate;
+	@Autowired
+	private RestService restService;
+	@Autowired
+	private CommonsConfig commonsConfig;
+	@Autowired
+	private ContractService contractService;
+
+//	@Test
+	public void testRest() {
+		// 通过远程的Rest服务中的信息将其自动换换为Res对象实例
+		SmsParam smsParam = new SmsParam();
+		smsParam.setPhones("13800138000");
+		smsParam.setType(SMSType.SMS_GEN_PROJ_TPL);
+		smsParam.setTplParam("{'projectId':'2018081152'}");
+		Res res = restTemplate.postForObject("http://127.0.0.1:8080/hello/get", smsParam, Res.class);
+		System.out.println(res.toString());
+	}
+
+//	@Test
+	public void testSms() {
+		JSONObject jobj = new JSONObject();
+		jobj.put("projectId", "2018081111");
+		SmsParam param = new SmsParam();
+		param.setType(SMSType.SMS_GEN_PROJ_TPL);
+		param.setPhones("18190798870");
+		param.setTplParam(jobj.toJSONString());
+		Res res = restService.sendSms("http://127.0.0.1:8080/sms/send", param);
+		System.out.println(res.toString());
+	}
+
+//	@Test
+	public void testSVNUpdate() {
+		Long res =SVNHelper.update(commonsConfig.getSvn_export_path(), commonsConfig.getSvn_username(),
+				commonsConfig.getSvn_password());
+		System.out.println(res);
+	}
+	
+	@Test
+	public void testSendMsg(){
+		contractService.sendMsg(111111L);
+	}
+}

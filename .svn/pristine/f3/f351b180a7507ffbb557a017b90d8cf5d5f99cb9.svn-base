@@ -1,0 +1,27 @@
+package com.dee.xql.a8.dao;
+
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
+
+@Mapper
+public interface ContractMapper {
+	
+	/**
+	 * 根据流程ID获取施工图计划员手机号
+	 * @param summaryId
+	 * @return
+	 */
+	@Select("SELECT C.EXT_ATTR_1 FROM FORMMAIN_1435 A "
+			+ "LEFT JOIN COL_SUMMARY B ON B.FORM_RECORDID=A.ID "
+			+ "LEFT JOIN ORG_MEMBER C ON  A.FIELD0080=C.ID "
+			+ "WHERE B.ID= #{summaryId} ")
+	public String getPhoneBySummary(@Param("summaryId") Long summaryId);
+	/**
+	 * 流程ID查询合同项目编码
+	 * @param summaryId
+	 * @return
+	 */
+	@Select("SELECT A.FIELD0002 FROM FORMMAIN_1435 A LEFT JOIN COL_SUMMARY B ON B.FORM_RECORDID=A.ID WHERE B.ID=#{summaryId}")
+	public String getProjectCode(@Param("summaryId") Long summaryId);
+}

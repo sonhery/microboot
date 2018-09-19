@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.DJTaskAllotMapper">
+  <resultMap id="BaseResultMap" type="model.DJTaskAllot">
+    <id column="TASK_ID" jdbcType="VARCHAR" property="taskId" />
+    <id column="RES_ID" jdbcType="VARCHAR" property="resId" />
+    <result column="UNITS" jdbcType="DECIMAL" property="units" />
+    <result column="WORK" jdbcType="DECIMAL" property="work" />
+    <result column="START" jdbcType="TIMESTAMP" property="start" />
+    <result column="FINISH" jdbcType="TIMESTAMP" property="finish" />
+    <result column="ACTUAL_START" jdbcType="TIMESTAMP" property="actualStart" />
+    <result column="ACTUAL_FINISH" jdbcType="TIMESTAMP" property="actualFinish" />
+    <result column="COST_RATE_TABLE" jdbcType="VARCHAR" property="costRateTable" />
+    <result column="COST" jdbcType="DECIMAL" property="cost" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    TASK_ID, RES_ID, UNITS, "WORK", "START", FINISH, ACTUAL_START, ACTUAL_FINISH, COST_RATE_TABLE, 
+    COST
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="model.DJTaskAllotKey" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from DJ_TASK_ALLOT
+    where TASK_ID = #{taskId,jdbcType=VARCHAR}
+      and RES_ID = #{resId,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="model.DJTaskAllotKey">
+    delete from DJ_TASK_ALLOT
+    where TASK_ID = #{taskId,jdbcType=VARCHAR}
+      and RES_ID = #{resId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="model.DJTaskAllot">
+    insert into DJ_TASK_ALLOT (TASK_ID, RES_ID, UNITS, 
+      "WORK", "START", FINISH, 
+      ACTUAL_START, ACTUAL_FINISH, COST_RATE_TABLE, 
+      COST)
+    values (#{taskId,jdbcType=VARCHAR}, #{resId,jdbcType=VARCHAR}, #{units,jdbcType=DECIMAL}, 
+      #{work,jdbcType=DECIMAL}, #{start,jdbcType=TIMESTAMP}, #{finish,jdbcType=TIMESTAMP}, 
+      #{actualStart,jdbcType=TIMESTAMP}, #{actualFinish,jdbcType=TIMESTAMP}, #{costRateTable,jdbcType=VARCHAR}, 
+      #{cost,jdbcType=DECIMAL})
+  </insert>
+  <insert id="insertSelective" parameterType="model.DJTaskAllot">
+    insert into DJ_TASK_ALLOT
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="taskId != null">
+        TASK_ID,
+      </if>
+      <if test="resId != null">
+        RES_ID,
+      </if>
+      <if test="units != null">
+        UNITS,
+      </if>
+      <if test="work != null">
+        "WORK",
+      </if>
+      <if test="start != null">
+        "START",
+      </if>
+      <if test="finish != null">
+        FINISH,
+      </if>
+      <if test="actualStart != null">
+        ACTUAL_START,
+      </if>
+      <if test="actualFinish != null">
+        ACTUAL_FINISH,
+      </if>
+      <if test="costRateTable != null">
+        COST_RATE_TABLE,
+      </if>
+      <if test="cost != null">
+        COST,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="taskId != null">
+        #{taskId,jdbcType=VARCHAR},
+      </if>
+      <if test="resId != null">
+        #{resId,jdbcType=VARCHAR},
+      </if>
+      <if test="units != null">
+        #{units,jdbcType=DECIMAL},
+      </if>
+      <if test="work != null">
+        #{work,jdbcType=DECIMAL},
+      </if>
+      <if test="start != null">
+        #{start,jdbcType=TIMESTAMP},
+      </if>
+      <if test="finish != null">
+        #{finish,jdbcType=TIMESTAMP},
+      </if>
+      <if test="actualStart != null">
+        #{actualStart,jdbcType=TIMESTAMP},
+      </if>
+      <if test="actualFinish != null">
+        #{actualFinish,jdbcType=TIMESTAMP},
+      </if>
+      <if test="costRateTable != null">
+        #{costRateTable,jdbcType=VARCHAR},
+      </if>
+      <if test="cost != null">
+        #{cost,jdbcType=DECIMAL},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="model.DJTaskAllot">
+    update DJ_TASK_ALLOT
+    <set>
+      <if test="units != null">
+        UNITS = #{units,jdbcType=DECIMAL},
+      </if>
+      <if test="work != null">
+        "WORK" = #{work,jdbcType=DECIMAL},
+      </if>
+      <if test="start != null">
+        "START" = #{start,jdbcType=TIMESTAMP},
+      </if>
+      <if test="finish != null">
+        FINISH = #{finish,jdbcType=TIMESTAMP},
+      </if>
+      <if test="actualStart != null">
+        ACTUAL_START = #{actualStart,jdbcType=TIMESTAMP},
+      </if>
+      <if test="actualFinish != null">
+        ACTUAL_FINISH = #{actualFinish,jdbcType=TIMESTAMP},
+      </if>
+      <if test="costRateTable != null">
+        COST_RATE_TABLE = #{costRateTable,jdbcType=VARCHAR},
+      </if>
+      <if test="cost != null">
+        COST = #{cost,jdbcType=DECIMAL},
+      </if>
+    </set>
+    where TASK_ID = #{taskId,jdbcType=VARCHAR}
+      and RES_ID = #{resId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="model.DJTaskAllot">
+    update DJ_TASK_ALLOT
+    set UNITS = #{units,jdbcType=DECIMAL},
+      "WORK" = #{work,jdbcType=DECIMAL},
+      "START" = #{start,jdbcType=TIMESTAMP},
+      FINISH = #{finish,jdbcType=TIMESTAMP},
+      ACTUAL_START = #{actualStart,jdbcType=TIMESTAMP},
+      ACTUAL_FINISH = #{actualFinish,jdbcType=TIMESTAMP},
+      COST_RATE_TABLE = #{costRateTable,jdbcType=VARCHAR},
+      COST = #{cost,jdbcType=DECIMAL}
+    where TASK_ID = #{taskId,jdbcType=VARCHAR}
+      and RES_ID = #{resId,jdbcType=VARCHAR}
+  </update>
+</mapper>

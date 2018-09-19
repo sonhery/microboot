@@ -1,0 +1,24 @@
+package com.dee.xql.api.model;
+
+import java.util.Date;
+
+import lombok.Data;
+
+/**
+ * SAP 物料
+ * 
+ * @author YSH
+ *
+ */
+@Data
+public class SAPGoods {
+	private Long id;
+	private String sapGoodsId;// SAP物料编码
+	private String goods;// 物料描述
+	private String units;// 单位
+	private String costRateTable = "0";// 报价
+	private String brand;
+	private Date createDate;
+	private String notes;// 备注
+	private Integer type;// 是否已经同步到project 1：是，0：否
+}

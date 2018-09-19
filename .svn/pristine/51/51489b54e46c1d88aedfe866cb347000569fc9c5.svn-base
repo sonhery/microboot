@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dee.xql.proj.dao.ProjTaskWorkMapper">
+	<resultMap id="BaseResultMap"
+		type="com.dee.xql.api.model.ProjTaskWork">
+		<id column="ID" jdbcType="VARCHAR" property="id" />
+		<id column="IMPORT_FORM_ID" jdbcType="DECIMAL"
+			property="importFormId" />
+		<result column="TASK_UID" jdbcType="VARCHAR" property="taskUid" />
+		<result column="PROJECT_ID" jdbcType="VARCHAR"
+			property="projectId" />
+		<result column="TASK_SEQUENCE_CODE" jdbcType="VARCHAR"
+			property="taskSequenceCode" />
+		<result column="TASK_NAME" jdbcType="VARCHAR"
+			property="taskName" />
+		<result column="WBS" jdbcType="VARCHAR" property="wbs" />
+		<result column="ACTIVE" jdbcType="INTEGER" property="active" />
+		<result column="SUPERIOR_TASK_ID" jdbcType="VARCHAR"
+			property="superiorTaskId" />
+		<result column="SUPERIOR_TASK_UID" jdbcType="VARCHAR"
+			property="superiorTaskUid" />
+		<result column="NOTES" jdbcType="VARCHAR" property="notes" />
+		<result column="CONTACT" jdbcType="VARCHAR" property="contact" />
+		<result column="TASK_MODEL" jdbcType="VARCHAR"
+			property="taskModel" />
+		<result column="PRIORITY" jdbcType="INTEGER"
+			property="priority" />
+		<result column="IS_MILEPOST" jdbcType="INTEGER"
+			property="isMilepost" />
+		<result column="PLAN_START_DATE" jdbcType="TIMESTAMP"
+			property="planStartDate" />
+		<result column="PLAN_END_DATE" jdbcType="TIMESTAMP"
+			property="planEndDate" />
+		<result column="PLAN_TIME_LIMIT" jdbcType="DOUBLE"
+			property="planTimeLimit" />
+		<result column="LAST_DATE" jdbcType="TIMESTAMP"
+			property="lastDate" />
+		<result column="START_DATE" jdbcType="TIMESTAMP"
+			property="startDate" />
+		<result column="END_DATE" jdbcType="TIMESTAMP"
+			property="endDate" />
+		<result column="TIME_LIMIT" jdbcType="DOUBLE"
+			property="timeLimit" />
+		<result column="WORK_HOURS" jdbcType="DOUBLE"
+			property="workHours" />
+		<result column="COMPLETE_PERCENT" jdbcType="DOUBLE"
+			property="completePercent" />
+		<result column="FIRST_START_DATE" jdbcType="TIMESTAMP"
+			property="firstStartDate" />
+		<result column="FIRST_COMPLETE_DATE" jdbcType="TIMESTAMP"
+			property="firstCompleteDate" />
+		<result column="LAST_START_DATE" jdbcType="TIMESTAMP"
+			property="lastStartDate" />
+		<result column="LAST_COMPLETE_DATE" jdbcType="TIMESTAMP"
+			property="lastCompleteDate" />
+		<result column="STRAT_DELAY" jdbcType="DOUBLE"
+			property="startDelay" />
+		<result column="COMPLETE_DELAY" jdbcType="DOUBLE"
+			property="completeDelay" />
+		<result column="TOTAL_DELAY" jdbcType="DOUBLE"
+			property="totalDelay" />
+		<result column="CREATE_DATE" jdbcType="TIMESTAMP"
+			property="createDate" />
+		<result column="OVERALLOCATED" jdbcType="INTEGER"
+			property="overallocated" />
+		<result column="TASK_TYPE" jdbcType="VARCHAR"
+			property="taskType" />
+		<result column="CALENDAR_GUID" jdbcType="VARCHAR"
+			property="calendarGuid" />
+		<result column="ESTIMATED" jdbcType="INTEGER"
+			property="estimated" />
+		<result column="CONSTRAINT_TYPE" jdbcType="VARCHAR"
+			property="constraintType" />
+		<result column="CONSTRAINT_DATE" jdbcType="TIMESTAMP"
+			property="constraintDate" />
+		<result column="LOG_ID" jdbcType="INTEGER" property="logId" />
+		<result column="FILE_NAME" jdbcType="VARCHAR"
+			property="fileName" />
+		<result column="START_MODE" jdbcType="INTEGER"
+			property="startMode" />
+		<result column="SUMMARY_ID" jdbcType="BIGINT"
+			property="summaryId" />
+		<result column="IS_SUMMARY" jdbcType="INTEGER"
+			property="isSummary" />
+		<result column="TASK_SUPERVISION" jdbcType="VARCHAR"
+			property="taskSupervision" />
+		<result column="TASK_CODE" jdbcType="VARCHAR"
+			property="taskCode" />
+		<result column="SVN_LAST_VERSION" jdbcType="BIGINT"
+			property="svnLastVersion" />
+		<result column="RESOURCE_NAMES" jdbcType="VARCHAR"
+			property="resourceNames" />
+		<result column="COST" jdbcType="DOUBLE" property="cost" />
+		<result column="OVERTIME_COST" jdbcType="DOUBLE"
+			property="overtimeCost" />
+		<result column="FIXED_COST" jdbcType="DOUBLE"
+			property="fixedCost" />
+		<result column="ACTUAL_COST" jdbcType="DOUBLE"
+			property="actualCost" />
+		<result column="ACTUAL_OVERTIME_COST" jdbcType="DOUBLE"
+			property="actualOvertimeCost" />
+		<result column="ACTUAL_OVERTIME_WORK" jdbcType="DOUBLE"
+			property="actualOvertimeWork" />
+		<result column="PHYSICAL_PERCENT_COMPLETE" jdbcType="DOUBLE"
+			property="physicalPercentComplete" />
+		<result column="REMAINING_COST" jdbcType="DOUBLE"
+			property="remainingCost" />
+		<result column="REMAINING_DURATION" jdbcType="DOUBLE"
+			property="remainingDuration" />
+		<result column="REMAINING_WORK" jdbcType="DOUBLE"
+			property="remainingWork" />
+		<result column="REMAINING_OVERTIME_COST" jdbcType="DOUBLE"
+			property="remainingOvertimeCost" />
+		<result column="REMAINING_OVERTIME_WORK" jdbcType="DOUBLE"
+			property="remainingOvertimeWork" />
+		<result column="HYPERLINK" jdbcType="VARCHAR"
+			property="hyperlink" />
+		<result column="HYPERLINK_ADDRESS" jdbcType="VARCHAR"
+			property="hyperlinkAddress" />
+	</resultMap>
+</mapper>

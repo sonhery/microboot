@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration
+        PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+<generatorConfiguration>
+	<!-- 执行generator插件生成文件的命令：call mvn mybatis-generator:generate -e -->
+	<!-- 引入配置文件 -->
+	<!-- <properties resource="mybatis/generator/init.properties" /> -->
+	<!-- 数据库驱动 -->
+	<classPathEntry
+		location="F:\Maven\maven-repository\com\oracle\ojdbc7\11.2.0.1.0\ojdbc7-11.2.0.1.0.jar" />
+	<context id="DB2Tables" targetRuntime="MyBatis3">
+		<!-- 自动识别数据库关键字，默认false，如果设置为true，根据SqlReservedWords中定义的关键字列表；一般保留默认值，遇到数据库关键字（Java关键字），使用columnOverride覆盖 -->
+		<property name="autoDelimitKeywords" value="true" />
+		<!-- 生成的Java文件编码 -->
+		<property name="javaFileEncoding" value="utf-8" />
+		<!-- 格式化java代码 -->
+		<property name="javaFormatter"
+			value="org.mybatis.generator.api.dom.DefaultJavaFormatter" />
+		<!-- 格式化XML代码 -->
+		<property name="xmlFormatter"
+			value="org.mybatis.generator.api.dom.DefaultXmlFormatter" />
+		<plugin type="org.mybatis.generator.plugins.SerializablePlugin" />
+		<plugin type="org.mybatis.generator.plugins.ToStringPlugin" />
+		<commentGenerator>
+			<!-- 是否生成注释代时间戳 -->
+			<property name="suppressDate" value="true" />
+			<!-- 是否去除自动生成的注释 true：是 ： false:否 -->
+			<property name="suppressAllComments" value="true" />
+		</commentGenerator>
+		<!--数据库链接URL，用户名、密码 -->
+		<jdbcConnection driverClass="oracle.jdbc.OracleDriver"
+			connectionURL="jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=172.16.3.101)(PORT=1521)))(CONNECT_DATA=(SERVICE_NAME=xinqianli)(SERVER=DEDICATED)))"
+			userId="V3XUSER" password="ABC-123*v3xuser">
+		</jdbcConnection>
+		<!-- 类型转换 -->
+		<javaTypeResolver
+			type="org.mybatis.generator.internal.types.JavaTypeResolverDefaultImpl">
+			<!-- 是否使用bigDecimal,false可自动转化为一下类型(Long,Integer,Short,etc.) -->
+			<property name="forceBigDecimals" value="false" />
+		</javaTypeResolver>
+		<!-- 生成模型的包名和位置 -->
+		<javaModelGenerator
+			targetPackage="model" targetProject="src/test/java">
+			<property name="enableSubPackages" value="true" />
+			<property name="trimStrings" value="true" />
+		</javaModelGenerator>
+		<!-- 生成映射文件的包名和位置 -->
+		<sqlMapGenerator targetPackage="mapper"
+			targetProject="src/test/java">
+			<!-- 是否在当前路径下新加已成schema,eg: false路径com.oop.eksp.user.model,true:com.oop.eksp.user.model -->
+			<property name="enableSubPackages" value="true" />
+		</sqlMapGenerator>
+		<!-- 生成DAO的包名和位置 -->
+		<javaClientGenerator type="XMLMAPPER"
+			targetPackage="dao" targetProject="src/test/java">
+			<property name="enableSubPackages" value="true" />
+		</javaClientGenerator>
+		<!-- 要生成的表 tableName是数据库中的表名或视图名 domainObjectName是实体类名 -->
+		<table tableName="LAMPS_FRONT_TASK" domainObjectName="LampsFrontTask"
+			enableCountByExample="false" enableUpdateByExample="false"
+			enableDeleteByExample="false" enableSelectByExample="false"
+			selectByExampleQueryId="false" />
+	</context>
+</generatorConfiguration>

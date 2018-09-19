@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.LampsTaskAllotMapper">
+  <resultMap id="BaseResultMap" type="model.LampsTaskAllot">
+    <id column="ID" jdbcType="VARCHAR" property="id" />
+    <result column="TASK_ID" jdbcType="VARCHAR" property="taskId" />
+    <result column="RES_ID" jdbcType="VARCHAR" property="resId" />
+    <result column="UNITS" jdbcType="DECIMAL" property="units" />
+    <result column="SAP_GOODS_ID" jdbcType="VARCHAR" property="sapGoodsId" />
+    <result column="WORK" jdbcType="DECIMAL" property="work" />
+    <result column="COST_RATE_TABLE" jdbcType="VARCHAR" property="costRateTable" />
+    <result column="COST" jdbcType="DECIMAL" property="cost" />
+    <result column="FILE_CODE" jdbcType="VARCHAR" property="fileCode" />
+    <result column="SVN_LAST_VERSION" jdbcType="DECIMAL" property="svnLastVersion" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    ID, TASK_ID, RES_ID, UNITS, SAP_GOODS_ID, "WORK", COST_RATE_TABLE, COST, FILE_CODE, 
+    SVN_LAST_VERSION
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from LAMPS_TASK_ALLOT
+    where ID = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from LAMPS_TASK_ALLOT
+    where ID = #{id,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="model.LampsTaskAllot">
+    insert into LAMPS_TASK_ALLOT (ID, TASK_ID, RES_ID, 
+      UNITS, SAP_GOODS_ID, "WORK", 
+      COST_RATE_TABLE, COST, FILE_CODE, 
+      SVN_LAST_VERSION)
+    values (#{id,jdbcType=VARCHAR}, #{taskId,jdbcType=VARCHAR}, #{resId,jdbcType=VARCHAR}, 
+      #{units,jdbcType=DECIMAL}, #{sapGoodsId,jdbcType=VARCHAR}, #{work,jdbcType=DECIMAL}, 
+      #{costRateTable,jdbcType=VARCHAR}, #{cost,jdbcType=DECIMAL}, #{fileCode,jdbcType=VARCHAR}, 
+      #{svnLastVersion,jdbcType=DECIMAL})
+  </insert>
+  <insert id="insertSelective" parameterType="model.LampsTaskAllot">
+    insert into LAMPS_TASK_ALLOT
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        ID,
+      </if>
+      <if test="taskId != null">
+        TASK_ID,
+      </if>
+      <if test="resId != null">
+        RES_ID,
+      </if>
+      <if test="units != null">
+        UNITS,
+      </if>
+      <if test="sapGoodsId != null">
+        SAP_GOODS_ID,
+      </if>
+      <if test="work != null">
+        "WORK",
+      </if>
+      <if test="costRateTable != null">
+        COST_RATE_TABLE,
+      </if>
+      <if test="cost != null">
+        COST,
+      </if>
+      <if test="fileCode != null">
+        FILE_CODE,
+      </if>
+      <if test="svnLastVersion != null">
+        SVN_LAST_VERSION,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="taskId != null">
+        #{taskId,jdbcType=VARCHAR},
+      </if>
+      <if test="resId != null">
+        #{resId,jdbcType=VARCHAR},
+      </if>
+      <if test="units != null">
+        #{units,jdbcType=DECIMAL},
+      </if>
+      <if test="sapGoodsId != null">
+        #{sapGoodsId,jdbcType=VARCHAR},
+      </if>
+      <if test="work != null">
+        #{work,jdbcType=DECIMAL},
+      </if>
+      <if test="costRateTable != null">
+        #{costRateTable,jdbcType=VARCHAR},
+      </if>
+      <if test="cost != null">
+        #{cost,jdbcType=DECIMAL},
+      </if>
+      <if test="fileCode != null">
+        #{fileCode,jdbcType=VARCHAR},
+      </if>
+      <if test="svnLastVersion != null">
+        #{svnLastVersion,jdbcType=DECIMAL},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="model.LampsTaskAllot">
+    update LAMPS_TASK_ALLOT
+    <set>
+      <if test="taskId != null">
+        TASK_ID = #{taskId,jdbcType=VARCHAR},
+      </if>
+      <if test="resId != null">
+        RES_ID = #{resId,jdbcType=VARCHAR},
+      </if>
+      <if test="units != null">
+        UNITS = #{units,jdbcType=DECIMAL},
+      </if>
+      <if test="sapGoodsId != null">
+        SAP_GOODS_ID = #{sapGoodsId,jdbcType=VARCHAR},
+      </if>
+      <if test="work != null">
+        "WORK" = #{work,jdbcType=DECIMAL},
+      </if>
+      <if test="costRateTable != null">
+        COST_RATE_TABLE = #{costRateTable,jdbcType=VARCHAR},
+      </if>
+      <if test="cost != null">
+        COST = #{cost,jdbcType=DECIMAL},
+      </if>
+      <if test="fileCode != null">
+        FILE_CODE = #{fileCode,jdbcType=VARCHAR},
+      </if>
+      <if test="svnLastVersion != null">
+        SVN_LAST_VERSION = #{svnLastVersion,jdbcType=DECIMAL},
+      </if>
+    </set>
+    where ID = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="model.LampsTaskAllot">
+    update LAMPS_TASK_ALLOT
+    set TASK_ID = #{taskId,jdbcType=VARCHAR},
+      RES_ID = #{resId,jdbcType=VARCHAR},
+      UNITS = #{units,jdbcType=DECIMAL},
+      SAP_GOODS_ID = #{sapGoodsId,jdbcType=VARCHAR},
+      "WORK" = #{work,jdbcType=DECIMAL},
+      COST_RATE_TABLE = #{costRateTable,jdbcType=VARCHAR},
+      COST = #{cost,jdbcType=DECIMAL},
+      FILE_CODE = #{fileCode,jdbcType=VARCHAR},
+      SVN_LAST_VERSION = #{svnLastVersion,jdbcType=DECIMAL}
+    where ID = #{id,jdbcType=VARCHAR}
+  </update>
+</mapper>

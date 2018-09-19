@@ -1,0 +1,15 @@
+server:
+  port: 8080
+spring:
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource      # 配置当前要使用的数据源的操作类型
+    driver-class-name: oracle.jdbc.OracleDriver
+    url: jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=172.16.3.101)(PORT=1521)))(CONNECT_DATA=(SERVICE_NAME=xinqianli)(SERVER=DEDICATED)))
+    username: V3XUSER
+    password: ABC-123*v3xuser
+    filters: stat,wall
+    dbcp2:
+      min-idle: 5                                     # 数据库连接池的最小维持连接数
+      initial-size: 5                                 # 初始化提供的连接数
+      max-total: 5                                    # 最大的连接数
+      max-wait-millis: 200                            # 等待连接获取的最大超时时间
